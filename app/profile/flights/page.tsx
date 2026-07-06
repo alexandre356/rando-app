@@ -14,6 +14,7 @@ type FlightLog = {
   conditions: string | null;
   notes: string | null;
   rating: number | null;
+  equipment_used: string | null;
 };
 
 type Site = {
@@ -21,10 +22,19 @@ type Site = {
   name: string;
 };
 
+type Equipment = {
+  id: string;
+  name: string;
+  type: string | null;
+  brand: string | null;
+  model: string | null;
+};
+
 export default function FlightsPage() {
   const router = useRouter();
   const [flights, setFlights] = useState<FlightLog[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -38,17 +48,12 @@ export default function FlightsPage() {
   const [conditions, setConditions] = useState("");
   const [notes, setNotes] = useState("");
   const [rating, setRating] = useState(0);
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
 
   useEffect(() => {
     async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
 
       const { data: flightsData, error } = await supabase
         .from("flight_logs")
@@ -56,11 +61,8 @@ export default function FlightsPage() {
         .eq("user_id", user.id)
         .order("date", { ascending: false });
 
-      if (error) {
-        console.error(error);
-      } else {
-        setFlights(flightsData || []);
-      }
+      if (error) console.error(error);
+      else setFlights(flightsData || []);
 
       const { data: sitesData } = await supabase
         .from("sites")
@@ -69,11 +71,24 @@ export default function FlightsPage() {
         .order("name");
 
       setSites(sitesData || []);
+
+      const { data: equipmentData } = await supabase
+        .from("equipment")
+        .select("id, name, type, brand, model")
+        .eq("user_id", user.id)
+        .order("type");
+
+      setEquipment(equipmentData || []);
       setLoading(false);
     }
-
     load();
   }, []);
+
+  function toggleEquipment(name: string) {
+    setSelectedEquipment((prev) =>
+      prev.includes(name) ? prev.filter((e) => e !== name) : [...prev, name]
+    );
+  }
 
   function handleSiteSelect(value: string) {
     setSiteId(value);
@@ -85,10 +100,7 @@ export default function FlightsPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const totalMinutes =
@@ -107,41 +119,23 @@ export default function FlightsPage() {
         conditions: conditions || null,
         notes: notes || null,
         rating: rating || null,
+        equipment_used: selectedEquipment.length > 0 ? selectedEquipment.join(", ") : null,
       })
       .select("*")
       .single();
 
-    if (error) {
-      alert(error.message);
-      setSubmitting(false);
-      return;
-    }
+    if (error) { alert(error.message); setSubmitting(false); return; }
 
     setFlights([data, ...flights]);
-    setDate("");
-    setSiteName("");
-    setSiteId("");
-    setDurationHours("");
-    setDurationMinutes("");
-    setElevationGain("");
-    setConditions("");
-    setNotes("");
-    setRating(0);
-    setShowForm(false);
-    setSubmitting(false);
+    setDate(""); setSiteName(""); setSiteId("");
+    setDurationHours(""); setDurationMinutes("");
+    setElevationGain(""); setConditions(""); setNotes("");
+    setRating(0); setSelectedEquipment([]); setShowForm(false); setSubmitting(false);
   }
 
   async function handleDelete(id: string) {
-    const { error } = await supabase
-      .from("flight_logs")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
+    const { error } = await supabase.from("flight_logs").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
     setFlights(flights.filter((f) => f.id !== id));
   }
 
@@ -155,11 +149,11 @@ export default function FlightsPage() {
   }
 
   const totalFlights = flights.length;
-  const totalHours = Math.floor(
-    flights.reduce((sum, f) => sum + (f.duration_minutes || 0), 0) / 60
-  );
-  const totalMinutes =
-    flights.reduce((sum, f) => sum + (f.duration_minutes || 0), 0) % 60;
+  const totalHours = Math.floor(flights.reduce((sum, f) => sum + (f.duration_minutes || 0), 0) / 60);
+  const totalMinutes = flights.reduce((sum, f) => sum + (f.duration_minutes || 0), 0) % 60;
+
+  const voiles = equipment.filter((e) => e.type === "Voile");
+  const autresEquipements = equipment.filter((e) => e.type !== "Voile");
 
   if (loading) {
     return (
@@ -176,17 +170,14 @@ export default function FlightsPage() {
     <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="max-w-4xl mx-auto p-10">
-        <a
-          href="/profile"
-          className="text-gray-400 hover:text-green-400 transition mb-8 inline-block"
-        >
+      <section className="p-10">
+        <a href="/profile" className="text-gray-400 hover:text-green-400 transition mb-8 inline-block">
           &larr; Retour au profil
         </a>
 
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-5xl font-bold mb-2">Journal de vol</h1>
-          <p className="text-indigo-400 italic text-sm">&ldquo;Si tu ne sais pas où est l'atterro, c'est que tu es en cross.&rdquo;</p>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-5xl font-bold">Journal de vol</h1>
+          <p className="text-indigo-400 italic text-sm">&ldquo;Si tu ne sais pas où est l&apos;atterro, c&apos;est que tu es en cross.&rdquo;</p>
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
@@ -238,9 +229,7 @@ export default function FlightsPage() {
             >
               <option value="">Site (optionnel)</option>
               {sites.map((site) => (
-                <option key={site.id} value={site.id}>
-                  {site.name}
-                </option>
+                <option key={site.id} value={site.id}>{site.name}</option>
               ))}
             </select>
 
@@ -251,6 +240,71 @@ export default function FlightsPage() {
               onChange={(e) => setSiteName(e.target.value)}
               className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3"
             />
+
+            {equipment.length > 0 ? (
+              <div>
+                <p className="text-gray-300 text-sm mb-3">Équipement utilisé (sélection multiple)</p>
+
+                {voiles.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-gray-500 text-xs mb-2 uppercase tracking-wide">Voiles</p>
+                    <div className="flex flex-wrap gap-2">
+                      {voiles.map((eq) => (
+                        <button
+                          key={eq.id}
+                          type="button"
+                          onClick={() => toggleEquipment(eq.name)}
+                          className={`text-sm px-4 py-2 rounded-xl border transition ${
+                            selectedEquipment.includes(eq.name)
+                              ? "bg-green-500 border-green-500 text-white"
+                              : "bg-black border-zinc-700 text-gray-300 hover:border-green-500"
+                          }`}
+                        >
+                          {eq.name}
+                          {eq.brand && <span className="text-xs opacity-70 ml-1">({eq.brand})</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {autresEquipements.length > 0 && (
+                  <div>
+                    <p className="text-gray-500 text-xs mb-2 uppercase tracking-wide">Autre matériel</p>
+                    <div className="flex flex-wrap gap-2">
+                      {autresEquipements.map((eq) => (
+                        <button
+                          key={eq.id}
+                          type="button"
+                          onClick={() => toggleEquipment(eq.name)}
+                          className={`text-sm px-4 py-2 rounded-xl border transition ${
+                            selectedEquipment.includes(eq.name)
+                              ? "bg-green-500 border-green-500 text-white"
+                              : "bg-black border-zinc-700 text-gray-300 hover:border-green-500"
+                          }`}
+                        >
+                          {eq.name}
+                          {eq.type && <span className="text-xs opacity-70 ml-1">({eq.type})</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedEquipment.length > 0 && (
+                  <p className="text-green-400 text-xs mt-2">
+                    Sélectionné : {selectedEquipment.join(", ")}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-xs">
+                Aucun équipement enregistré —{" "}
+                <a href="/profile/equipment" className="text-green-400 hover:underline">
+                  ajouter mon matériel
+                </a>
+              </p>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -275,7 +329,6 @@ export default function FlightsPage() {
                   />
                 </div>
               </div>
-
               <div>
                 <p className="text-gray-400 text-sm mb-2">D+ (m)</p>
                 <input
@@ -312,9 +365,7 @@ export default function FlightsPage() {
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
-                    className={`text-2xl transition ${
-                      star <= rating ? "opacity-100" : "opacity-30"
-                    }`}
+                    className={`text-2xl transition ${star <= rating ? "opacity-100" : "opacity-30"}`}
                   >
                     ⭐
                   </button>
@@ -343,9 +394,7 @@ export default function FlightsPage() {
 
         {flights.length === 0 ? (
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-10 text-center">
-            <p className="text-gray-400 text-xl mb-4">
-              Aucun vol enregistré pour l'instant.
-            </p>
+            <p className="text-gray-400 text-xl mb-4">Aucun vol enregistré pour l&apos;instant.</p>
             <button
               onClick={() => setShowForm(true)}
               className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold"
@@ -356,21 +405,13 @@ export default function FlightsPage() {
         ) : (
           <div className="space-y-4">
             {flights.map((flight) => (
-              <div
-                key={flight.id}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
-              >
+              <div key={flight.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h2 className="text-xl font-bold">
-                      {flight.site_name || "Site inconnu"}
-                    </h2>
+                    <h2 className="text-xl font-bold">{flight.site_name || "Site inconnu"}</h2>
                     <p className="text-gray-400 text-sm">
                       {new Date(flight.date).toLocaleDateString("fr-FR", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
+                        weekday: "long", year: "numeric", month: "long", day: "numeric",
                       })}
                     </p>
                   </div>
@@ -382,7 +423,7 @@ export default function FlightsPage() {
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-4 text-sm mb-3">
+                <div className="flex flex-wrap gap-3 text-sm mb-3">
                   {flight.duration_minutes && (
                     <span className="bg-zinc-800 px-3 py-1 rounded-full text-gray-300">
                       Durée : {formatDuration(flight.duration_minutes)}
@@ -400,16 +441,21 @@ export default function FlightsPage() {
                   )}
                 </div>
 
-                {flight.conditions && (
-                  <p className="text-gray-400 text-sm mb-2">
-                    Conditions : {flight.conditions}
-                  </p>
+                {flight.equipment_used && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {flight.equipment_used.split(", ").map((eq) => (
+                      <span key={eq} className="bg-green-900 border border-green-700 px-3 py-1 rounded-full text-green-300 text-xs">
+                        {eq}
+                      </span>
+                    ))}
+                  </div>
                 )}
 
+                {flight.conditions && (
+                  <p className="text-gray-400 text-sm mb-2">Conditions : {flight.conditions}</p>
+                )}
                 {flight.notes && (
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    {flight.notes}
-                  </p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{flight.notes}</p>
                 )}
               </div>
             ))}

@@ -5,6 +5,7 @@ import Navbar from "../../components/Navbar";
 import { supabase } from "../../lib/supabase";
 
 const CATEGORIES = [
+  "💡 Suggestions",
   "Météo et conditions",
   "Equipement vol",
   "Sites et spots",
@@ -57,7 +58,6 @@ export default function ForumPage() {
       setTopics(topicsWithUsernames);
       setLoading(false);
     }
-
     load();
   }, []);
 
@@ -99,7 +99,7 @@ export default function ForumPage() {
     <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="max-w-4xl mx-auto p-10">
+      <section className="p-10">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-5xl font-bold">Forum</h1>
           {isLoggedIn && !showForm && (
@@ -176,6 +176,17 @@ export default function ForumPage() {
             ))}
           </div>
         )}
+
+        <button
+          onClick={() => { setActiveCategory("💡 Suggestions"); setShowForm(true); setCategory("💡 Suggestions"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          className="w-full bg-gradient-to-r from-amber-950 to-yellow-950 border border-amber-600 hover:border-amber-400 transition rounded-2xl p-5 mt-8 text-left flex items-center justify-between"
+        >
+          <div>
+            <p className="text-amber-400 font-bold text-lg">💡 Une idée pour améliorer Marche&amp;Plouf ?</p>
+            <p className="text-gray-400 text-sm mt-1">Propose ta suggestion, on lit tout !</p>
+          </div>
+          <span className="text-amber-400 text-2xl">→</span>
+        </button>
       </section>
     </main>
   );

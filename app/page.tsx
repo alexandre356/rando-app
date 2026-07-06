@@ -1,15 +1,15 @@
+"use client";
+
 import Navbar from "../components/Navbar";
 
 export default function Home() {
   return (
     <main className="relative min-h-screen text-white overflow-hidden">
-      
+
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/mountain.jpg')",
-        }}
+        style={{ backgroundImage: "url('/mountain.jpg')" }}
       />
 
       {/* Dark overlay */}
@@ -26,13 +26,13 @@ export default function Home() {
           Explore la montagne autrement
         </h1>
 
-        <p className="text-xl text-gray-200 max-w-2xl">
+        <p className="text-xl text-gray-200 max-w-2xl mb-10">
           Plus le sac est petit, plus le pilote est dangereux.
         </p>
 
         <a
           href="/map"
-          className="mt-10 bg-green-500 hover:bg-green-600 transition px-8 py-4 rounded-xl text-lg font-semibold"
+          className="bg-green-500 hover:bg-green-600 transition px-8 py-4 rounded-xl text-lg font-semibold"
         >
           Découvrir les randonnées
         </a>
