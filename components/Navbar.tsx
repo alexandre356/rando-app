@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("Mon compte");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(true);
-  const [accountOpen, setAccountOpen] = useState(false);
+  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
 
   const ADMIN_UID = "8dda6bc2-0ddc-42f5-949f-0c28fa4c6635";
 
@@ -20,9 +20,10 @@ export default function Navbar() {
       setIsAdmin(user?.id === ADMIN_UID);
 
       if (user) {
-        const { data } = await supabase.from("profiles").select("username").eq("id", user.id).single();
+        const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", user.id).single();
         if (data?.username) setUsername(data.username);
         else if (user.email) setUsername(user.email.split("@")[0]);
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
       }
     }
     checkUser();
@@ -31,6 +32,16 @@ export default function Navbar() {
   async function handleLogout() {
     await supabase.auth.signOut();
     window.location.href = "/";
+  }
+
+  function openMobileMenu() {
+    setMobileAccountOpen(false);
+    setMobileMenuOpen(!mobileMenuOpen);
+  }
+
+  function openMobileAccount() {
+    setMobileMenuOpen(false);
+    setMobileAccountOpen(!mobileAccountOpen);
   }
 
   return (
@@ -73,71 +84,83 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile burger button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden flex flex-col gap-1.5 p-2"
-          aria-label="Menu"
-        >
-          <span className={`block w-6 h-0.5 bg-white transition-transform ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
-          <span className={`block w-6 h-0.5 bg-white transition-opacity ${mobileMenuOpen ? "opacity-0" : ""}`} />
-          <span className={`block w-6 h-0.5 bg-white transition-transform ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
-        </button>
+        {/* Mobile buttons : burger + profil */}
+        <div className="md:hidden flex items-center gap-2">
+
+          {/* Carré burger */}
+          <button
+            onClick={openMobileMenu}
+            aria-label="Menu"
+            className={`w-10 h-10 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition ${
+              mobileMenuOpen
+                ? "bg-green-500 border-green-500"
+                : "bg-zinc-800 border-zinc-700"
+            }`}
+          >
+            <span className={`block w-5 h-0.5 bg-white transition-transform ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-white transition-opacity ${mobileMenuOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-white transition-transform ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+          </button>
+
+          {/* Carré profil */}
+          <button
+            onClick={openMobileAccount}
+            aria-label="Mon compte"
+            className={`w-10 h-10 rounded-xl border flex items-center justify-center overflow-hidden transition ${
+              mobileAccountOpen
+                ? "bg-green-500 border-green-500"
+                : "bg-zinc-800 border-zinc-700"
+            }`}
+          >
+            {isLoggedIn && avatarUrl ? (
+              <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-lg">🪂</span>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Menu mobile : NAVIGATION */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-zinc-900 border-t border-zinc-800 shadow-2xl max-h-[85vh] overflow-y-auto">
-
-          {/* Section Navigation */}
-          <button
-            onClick={() => setNavOpen(!navOpen)}
-            className="w-full flex items-center justify-between px-6 py-4 bg-zinc-800/50 text-gray-300 font-semibold text-sm uppercase tracking-wide"
-          >
+          <p className="px-6 py-3 bg-zinc-800/50 text-gray-400 font-semibold text-xs uppercase tracking-wide">
             Navigation
-            <span className={`transition-transform ${navOpen ? "rotate-180" : ""}`}>▾</span>
-          </button>
-          {navOpen && (
+          </p>
+          <a href="/" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Accueil</a>
+          <a href="/map" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Carte</a>
+          <a href="/communaute" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Communauté</a>
+          <a href="/forum" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Forum</a>
+          <a href="/legal" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 text-red-500 text-sm">Légal</a>
+        </div>
+      )}
+
+      {/* Menu mobile : COMPTE */}
+      {mobileAccountOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 bg-zinc-900 border-t border-zinc-800 shadow-2xl max-h-[85vh] overflow-y-auto">
+          <p className="px-6 py-3 bg-zinc-800/50 text-gray-400 font-semibold text-xs uppercase tracking-wide">
+            {isLoggedIn ? `🪂 ${username}` : "Mon compte"}
+          </p>
+          {isLoggedIn ? (
             <>
-              <a href="/" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Accueil</a>
-              <a href="/map" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Carte</a>
-              <a href="/communaute" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Communauté</a>
-              <a href="/forum" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Forum</a>
+              <a href="/profile" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-green-400 font-semibold">Mon profil</a>
+              <a href="/profile/flights" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Journal de vol</a>
+              <a href="/profile/checklist" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Checklist pré-vol</a>
+              <a href="/profile/equipment" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Mon matériel</a>
+              <a href="/profile/achievements" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-yellow-400">🏆 Mes succès</a>
+              {isAdmin && (
+                <a href="/admin" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-orange-400">Administration</a>
+              )}
+              <button onClick={handleLogout} className="block w-full text-left px-6 py-4 hover:bg-zinc-800 text-red-400">
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <>
+              <a href="/login" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Connexion</a>
+              <a href="/signup" onClick={() => setMobileAccountOpen(false)} className="block px-6 py-4 hover:bg-zinc-800">Inscription</a>
             </>
           )}
-
-          {/* Section Compte */}
-          <button
-            onClick={() => setAccountOpen(!accountOpen)}
-            className="w-full flex items-center justify-between px-6 py-4 bg-zinc-800/50 text-gray-300 font-semibold text-sm uppercase tracking-wide border-t border-zinc-800"
-          >
-            {isLoggedIn ? `🪂 ${username}` : "Mon compte"}
-            <span className={`transition-transform ${accountOpen ? "rotate-180" : ""}`}>▾</span>
-          </button>
-          {accountOpen && (
-            isLoggedIn ? (
-              <>
-                <a href="/profile" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-green-400 font-semibold">Mon profil</a>
-                <a href="/profile/flights" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Journal de vol</a>
-                <a href="/profile/checklist" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Checklist pré-vol</a>
-                <a href="/profile/equipment" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Mon matériel</a>
-                <a href="/profile/achievements" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-yellow-400">🏆 Mes succès</a>
-                {isAdmin && (
-                  <a href="/admin" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-orange-400">Administration</a>
-                )}
-                <button onClick={handleLogout} className="block w-full text-left px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800 text-red-400">
-                  Déconnexion
-                </button>
-              </>
-            ) : (
-              <>
-                <a href="/login" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Connexion</a>
-                <a href="/signup" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 border-b border-zinc-800">Inscription</a>
-              </>
-            )
-          )}
-
-          <a href="/legal" onClick={() => setMobileMenuOpen(false)} className="block px-6 py-4 hover:bg-zinc-800 text-red-500 text-sm border-t border-zinc-800">Légal</a>
         </div>
       )}
     </nav>

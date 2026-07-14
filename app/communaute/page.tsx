@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
+import PageHeader from "../../components/PageHeader";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 
@@ -255,19 +256,19 @@ export default function CommunautePage() {
     <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="p-10">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-5xl font-bold">Communauté</h1>
-          {isLoggedIn && (
-            <a href="/communaute/submit" className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
-              + Partager une sortie
-            </a>
-          )}
-        </div>
-
-        <p className="text-purple-400 italic text-sm mb-6">
-          &ldquo;Si tout le monde attend, attends. Si tout le monde décolle, attends aussi.&rdquo;
-        </p>
+      <section className="p-5 sm:p-10">
+        <PageHeader
+          title="Communauté"
+          tagline="Si tout le monde attend, attends. Si tout le monde décolle, attends aussi."
+          taglineClassName="text-purple-400"
+          action={
+            isLoggedIn ? (
+              <a href="/communaute/submit" className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
+                + Partager une sortie
+              </a>
+            ) : undefined
+          }
+        />
 
         <p className="text-gray-400 mb-8">{outings.length} sortie(s) partagée(s)</p>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
+import PageHeader from "../../components/PageHeader";
 import { supabase } from "../../lib/supabase";
 
 const CATEGORIES = [
@@ -99,28 +100,31 @@ export default function ForumPage() {
     <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="p-10">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-5xl font-bold">Forum</h1>
-          {isLoggedIn && !showForm && (
-            <button onClick={() => setShowForm(true)} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
-              + Nouvelle discussion
-            </button>
-          )}
-        </div>
-
-        <p className="text-yellow-400 italic text-sm mb-6">
-          &ldquo;Si ça vole pas, cours plus vite.&rdquo;
-        </p>
+      <section className="p-5 sm:p-10">
+        <PageHeader
+          title="Forum"
+          tagline="Si ça vole pas, cours plus vite."
+          taglineClassName="text-yellow-400"
+          action={
+            isLoggedIn && !showForm ? (
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold"
+              >
+                + Nouvelle discussion
+              </button>
+            ) : undefined
+          }
+        />
 
         <p className="text-gray-400 mb-6">{filteredTopics.length} discussion(s)</p>
 
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
           {["Tous", ...CATEGORIES].map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap shrink-0 ${
                 activeCategory === cat
                   ? "bg-green-500 text-white"
                   : "bg-zinc-900 border border-zinc-700 text-gray-300 hover:border-green-500"
@@ -132,14 +136,14 @@ export default function ForumPage() {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="bg-zinc-900 border border-green-500 rounded-2xl p-6 mb-8 space-y-4">
+          <form onSubmit={handleSubmit} className="bg-zinc-900 border border-green-500 rounded-2xl p-5 sm:p-6 mb-8 space-y-4">
             <h2 className="text-xl font-bold">Nouvelle discussion</h2>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3">
               {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
             </select>
             <input type="text" placeholder="Titre de la discussion" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3" required />
             <textarea placeholder="Contenu de votre message..." value={content} onChange={(e) => setContent(e.target.value)} rows={5} className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3" required />
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button type="submit" disabled={submitting} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold disabled:opacity-50">
                 {submitting ? "Envoi..." : "Publier"}
               </button>
@@ -151,8 +155,8 @@ export default function ForumPage() {
         )}
 
         {filteredTopics.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-10 text-center">
-            <p className="text-gray-400 text-xl mb-4">Aucune discussion dans cette catégorie.</p>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-10 text-center">
+            <p className="text-gray-400 text-lg sm:text-xl mb-4">Aucune discussion dans cette catégorie.</p>
             {isLoggedIn && (
               <button onClick={() => setShowForm(true)} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
                 Lancez la première discussion !
@@ -162,10 +166,10 @@ export default function ForumPage() {
         ) : (
           <div className="space-y-4">
             {filteredTopics.map((topic) => (
-              <a key={topic.id} href={`/forum/${topic.id}`} className="block bg-zinc-900 border border-zinc-800 hover:border-green-500 transition rounded-2xl p-6">
-                <div className="flex items-start justify-between mb-2">
-                  <h2 className="text-xl font-bold">{topic.title}</h2>
-                  <span className="text-xs bg-zinc-700 text-gray-300 px-3 py-1 rounded-full ml-4 shrink-0">{topic.category || "Divers"}</span>
+              <a key={topic.id} href={`/forum/${topic.id}`} className="block bg-zinc-900 border border-zinc-800 hover:border-green-500 transition rounded-2xl p-5 sm:p-6">
+                <div className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                  <h2 className="text-lg sm:text-xl font-bold">{topic.title}</h2>
+                  <span className="text-xs bg-zinc-700 text-gray-300 px-3 py-1 rounded-full self-start sm:ml-4 shrink-0">{topic.category || "Divers"}</span>
                 </div>
                 <p className="text-gray-400 text-sm line-clamp-2 mb-3">{topic.content}</p>
                 <div className="flex gap-4 text-xs text-gray-500">
@@ -179,13 +183,13 @@ export default function ForumPage() {
 
         <button
           onClick={() => { setActiveCategory("💡 Suggestions"); setShowForm(true); setCategory("💡 Suggestions"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-          className="w-full bg-gradient-to-r from-amber-950 to-yellow-950 border border-amber-600 hover:border-amber-400 transition rounded-2xl p-5 mt-8 text-left flex items-center justify-between"
+          className="w-full bg-gradient-to-r from-amber-950 to-yellow-950 border border-amber-600 hover:border-amber-400 transition rounded-2xl p-5 mt-8 text-left flex items-center justify-between gap-4"
         >
           <div>
-            <p className="text-amber-400 font-bold text-lg">💡 Une idée pour améliorer Marche&amp;Plouf ?</p>
+            <p className="text-amber-400 font-bold text-base sm:text-lg">💡 Une idée pour améliorer Marche&amp;Plouf ?</p>
             <p className="text-gray-400 text-sm mt-1">Propose ta suggestion, on lit tout !</p>
           </div>
-          <span className="text-amber-400 text-2xl">→</span>
+          <span className="text-amber-400 text-2xl shrink-0">→</span>
         </button>
       </section>
     </main>
