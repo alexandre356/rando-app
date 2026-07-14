@@ -185,24 +185,42 @@ export default function SubmitRandoPage() {
 
     if (topoError) { alert(topoError.message); setSubmitting(false); return; }
 
+    const uploadErrors: string[] = [];
+
     for (const photo of photos) {
-      await supabase.storage.from("topos-photos").upload(`${topo.id}/${Date.now()}-${photo.name}`, photo);
-    }
-    if (gpxFile) {
-      await supabase.storage.from("topos-gpx").upload(`${topo.id}/${Date.now()}-${gpxFile.name}`, gpxFile);
+      const { error: photoError } = await supabase.storage
+        .from("topos-photos")
+        .upload(`${topo.id}/${Date.now()}-${photo.name}`, photo);
+      if (photoError) uploadErrors.push(`Photo ${photo.name} : ${photoError.message}`);
     }
 
-    alert("Randonnée soumise ! Elle sera visible après validation.");
+    if (gpxFile) {
+      const { error: gpxError } = await supabase.storage
+        .from("topos-gpx")
+        .upload(`${topo.id}/${Date.now()}-${gpxFile.name}`, gpxFile);
+      if (gpxError) uploadErrors.push(`GPX : ${gpxError.message}`);
+    }
+
+    if (uploadErrors.length > 0) {
+      alert(
+        "La randonnée a été créée, mais certains fichiers n'ont pas pu être envoyés :\n\n" +
+        uploadErrors.join("\n") +
+        "\n\nVous pourrez les rajouter plus tard depuis Supabase si besoin."
+      );
+    } else {
+      alert("Randonnée soumise ! Elle sera visible après validation.");
+    }
+
     window.location.href = "/map";
   }
 
   return (
     <main className="min-h-screen bg-black text-white">
       <Navbar />
-      <section className="p-10">
+      <section className="p-5 sm:p-10">
         <a href="/map" className="text-gray-400 hover:text-green-400 transition mb-8 inline-block">&larr; Retour à la carte</a>
 
-        <h1 className="text-5xl font-bold mb-4">Ajouter une randonnée Hike &amp; Fly</h1>
+        <h1 className="text-3xl sm:text-5xl font-bold mb-4">Ajouter une randonnée Hike &amp; Fly</h1>
         <p className="text-rose-400 italic text-sm mb-8">&ldquo;Une voile pliée ne ferme jamais.&rdquo;</p>
 
         {/* Choix du mode */}
