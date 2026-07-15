@@ -189,14 +189,14 @@ export default function SubmitRandoPage() {
 
     for (const photo of photos) {
       const { error: photoError } = await supabase.storage
-        .from("topos-photos")
+        .from("sites")
         .upload(`${topo.id}/${Date.now()}-${photo.name}`, photo);
       if (photoError) uploadErrors.push(`Photo ${photo.name} : ${photoError.message}`);
     }
 
     if (gpxFile) {
       const { error: gpxError } = await supabase.storage
-        .from("topos-gpx")
+        .from("gpx")
         .upload(`${topo.id}/${Date.now()}-${gpxFile.name}`, gpxFile);
       if (gpxError) uploadErrors.push(`GPX : ${gpxError.message}`);
     }

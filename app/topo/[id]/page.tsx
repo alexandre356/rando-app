@@ -90,7 +90,6 @@ function calculateStats(ep: ElevationPoint[]) {
 
 function estimateWalkingTime(elevationGain: number | null, approachType: string | null): string {
   if (!elevationGain) return "";
-  // Standard: 300m D+/hour for hiking, 200m D+/hour for alpine
   const mPerHour = approachType === "Alpinisme" ? 200 : 300;
   const totalMinutes = Math.round((elevationGain / mPerHour) * 60);
   const hours = Math.floor(totalMinutes / 60);
@@ -128,15 +127,15 @@ export default function TopoPage() {
       const { data: summitData } = await supabase.from("summits").select("*").eq("id", topoData.summit_id).single();
       setSummit(summitData);
 
-      const { data: photoFiles } = await supabase.storage.from("topos-photos").list(String(id), { sortBy: { column: "created_at", order: "asc" } });
+      const { data: photoFiles } = await supabase.storage.from("sites").list(String(id), { sortBy: { column: "created_at", order: "asc" } });
       if (photoFiles) {
-        setPhotos(photoFiles.map((f) => supabase.storage.from("topos-photos").getPublicUrl(`${id}/${f.name}`).data.publicUrl));
+        setPhotos(photoFiles.map((f) => supabase.storage.from("sites").getPublicUrl(`${id}/${f.name}`).data.publicUrl));
       }
 
-      const { data: gpxFiles } = await supabase.storage.from("topos-gpx").list(String(id), { sortBy: { column: "created_at", order: "asc" } });
+      const { data: gpxFiles } = await supabase.storage.from("gpx").list(String(id), { sortBy: { column: "created_at", order: "asc" } });
       if (gpxFiles && gpxFiles.length > 0) {
         const file = gpxFiles[0];
-        const { data: urlData } = supabase.storage.from("topos-gpx").getPublicUrl(`${id}/${file.name}`);
+        const { data: urlData } = supabase.storage.from("gpx").getPublicUrl(`${id}/${file.name}`);
         setGpxUrl(urlData.publicUrl);
         setGpxName(file.name);
         try {
@@ -152,7 +151,6 @@ export default function TopoPage() {
         } catch (e) { console.error(e); }
       }
 
-      // Note moyenne depuis le journal de vol
       const { data: flightLogs } = await supabase
         .from("flight_logs")
         .select("rating")
@@ -188,16 +186,16 @@ export default function TopoPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       <Navbar />
-      <section className="p-10">
+      <section className="p-5 sm:p-10">
         <a href={`/summit/${summit.id}`} className="text-gray-400 hover:text-green-400 transition mb-8 inline-block">
           &larr; Retour à {summit.name}
         </a>
 
-        <h1 className="text-5xl font-bold mb-1">{topo.name}</h1>
+        <h1 className="text-3xl sm:text-5xl font-bold mb-1">{topo.name}</h1>
         <p className="text-green-400 text-lg mb-1">{summit.name} — {summit.massif}</p>
         <p className="text-teal-400 italic text-sm mb-4">&ldquo;Quand ça bip très fort, souris et fais semblant de comprendre.&rdquo;</p>
 
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-wrap items-center gap-4 mb-8">
           {avgRating && (
             <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2">
               <span className="text-yellow-400">{"⭐".repeat(Math.round(avgRating))}</span>
@@ -325,7 +323,7 @@ export default function TopoPage() {
         {summit.latitude && summit.longitude && (
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-3">Localisation</h2>
-            <div className="flex gap-3 mb-4">
+            <div className="flex gap-2 sm:gap-3 mb-4 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
               {(["mapbox", "ign", "opentopo", "satellite"] as const).map((layer) => (
                 <button key={layer} onClick={() => setMapLayer(layer)} className={`text-sm font-semibold px-5 py-2 rounded-xl border transition ${mapLayer === layer ? "bg-cyan-500 border-cyan-500 text-white" : "bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500"}`}>
                   {layer === "mapbox" ? "Mapbox" : layer === "ign" ? "Carte IGN" : layer === "opentopo" ? "OpenTopoMap" : "Satellite"}
@@ -421,13 +419,13 @@ export default function TopoPage() {
 
         {summit.latitude && summit.longitude && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
               <h2 className="text-xl font-bold">Météo et conditions de vol</h2>
-              <div className="flex gap-3">
-                <a href={`https://www.meteo-parapente.com/${summit.latitude}/${summit.longitude}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Meteo-Parapente</a>
-                <a href="https://www.balisemeteo.com" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Balises FFVL</a>
-                <a href={`https://www.spotair.mobi?lat=${summit.latitude}&lng=${summit.longitude}&zoom=12&layers=wind,airspaces,webcams`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Ouvrir SpotAiR</a>
-                <a href={`https://fr.avalanche.report/#/map?lat=${summit.latitude}&lng=${summit.longitude}&zoom=10`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold px-5 py-2 rounded-xl border bg-yellow-950 border-yellow-700 text-yellow-300 hover:border-yellow-400 transition">❄️ Bulletin Avalanche</a>
+              <div className="flex gap-2 sm:gap-3 flex-wrap">
+                <a href={`https://www.meteo-parapente.com/${summit.latitude}/${summit.longitude}`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Meteo-Parapente</a>
+                <a href="https://www.balisemeteo.com" target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Balises FFVL</a>
+                <a href={`https://www.spotair.mobi?lat=${summit.latitude}&lng=${summit.longitude}&zoom=12&layers=wind,airspaces,webcams`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Ouvrir SpotAiR</a>
+                <a href={`https://fr.avalanche.report/#/map?lat=${summit.latitude}&lng=${summit.longitude}&zoom=10`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-yellow-950 border-yellow-700 text-yellow-300 hover:border-yellow-400 transition">❄️ Bulletin Avalanche</a>
               </div>
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
