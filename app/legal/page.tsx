@@ -5,10 +5,10 @@ export default function LegalPage() {
     <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="max-w-4xl mx-auto p-10 space-y-16">
+      <section className="p-5 sm:p-10 space-y-16">
 
         <div>
-          <h1 className="text-5xl font-bold mb-2">Informations légales</h1>
+          <h1 className="text-3xl sm:text-5xl font-bold mb-2">Informations légales</h1>
           <p className="text-gray-400">Dernière mise à jour : juillet 2026</p>
         </div>
 
@@ -29,7 +29,7 @@ export default function LegalPage() {
         {/* MENTIONS LEGALES */}
         <div>
           <h2 className="text-3xl font-bold mb-6 text-green-400">Mentions légales</h2>
-          <div className="space-y-4 text-gray-300">
+          <div className="grid md:grid-cols-2 gap-4 text-gray-300">
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
               <h3 className="font-semibold text-white mb-2">Éditeur du site</h3>
               <p>Marche&Plouf est un projet communautaire indépendant dédié à la pratique du Hike & Fly en France et dans les Alpes.</p>
@@ -49,7 +49,7 @@ export default function LegalPage() {
         {/* CGU */}
         <div>
           <h2 className="text-3xl font-bold mb-6 text-green-400">Conditions Générales d&apos;Utilisation</h2>
-          <div className="space-y-6 text-gray-300 leading-relaxed">
+          <div className="grid md:grid-cols-2 gap-4 text-gray-300 leading-relaxed">
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
               <h3 className="font-semibold text-white mb-3">1. Objet</h3>
@@ -93,7 +93,7 @@ export default function LegalPage() {
         {/* POLITIQUE DE CONFIDENTIALITÉ */}
         <div>
           <h2 className="text-3xl font-bold mb-6 text-green-400">Politique de confidentialité</h2>
-          <div className="space-y-6 text-gray-300 leading-relaxed">
+          <div className="grid md:grid-cols-2 gap-4 text-gray-300 leading-relaxed">
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
               <h3 className="font-semibold text-white mb-3">Données collectées</h3>

@@ -212,16 +212,18 @@ export default function MapPage() {
   });
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-black text-white overflow-x-hidden">
       <Navbar />
 
-      <div className="p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold">Carte Hike &amp; Fly</h1>
-          <a href="/submit-rando" className="bg-green-500 hover:bg-green-600 transition px-5 py-3 rounded-xl font-semibold text-sm text-center">
+      <div className="p-5 sm:p-10">
+        <div className="mb-2">
+          <h1 className="text-3xl sm:text-5xl font-bold mb-4">Carte Hike &amp; Fly</h1>
+          <a href="/submit-rando" className="block sm:inline-block text-center bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
             + Ajouter une randonnée
           </a>
         </div>
+
+        <p className="text-gray-400 mb-6">{filteredSummits.length} sommet(s)</p>
 
         <div className="grid md:grid-cols-3 gap-4 mb-4">
           <input type="text" placeholder="Recherche par nom" value={search} onChange={(e) => setSearch(e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm" />
@@ -264,7 +266,7 @@ export default function MapPage() {
         </div>
 
         {useRadius && (
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="text-gray-400 text-sm">Rayon :</span>
             <input type="range" min={5} max={200} step={5} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="w-48 accent-green-500" />
             <span className="text-green-400 font-semibold text-sm w-16">{radius} km</span>
@@ -272,7 +274,7 @@ export default function MapPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-6 mb-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4 mb-4">
           <div className="flex items-center gap-3">
             <span className="text-gray-400 text-sm shrink-0">D+ max :</span>
             <input type="range" min={0} max={3000} step={100} value={maxElevation === 5000 ? 3000 : maxElevation} onChange={(e) => setMaxElevation(Number(e.target.value) === 3000 ? 5000 : Number(e.target.value))} className="w-36 accent-green-500" />
@@ -322,16 +324,17 @@ export default function MapPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-gray-400 ml-auto">
-            <button onClick={() => setFilterRecent(!filterRecent)} className={`text-xs font-semibold px-3 py-2 rounded-xl border transition ${filterRecent ? "bg-orange-500 border-orange-500 text-white" : "bg-zinc-900 border-zinc-700 text-gray-300 hover:border-orange-500"}`}>
-              🔥 Actifs ce mois
-            </button>
-            <span className="w-3 h-3 rounded-full bg-orange-500 inline-block ml-2"></span> &lt; 7j
-            <span className="w-3 h-3 rounded-full bg-green-500 inline-block ml-2"></span> &lt; 30j
-            <span className="w-3 h-3 rounded-full bg-blue-500 inline-block ml-2"></span> Ancien
-            <span className="w-3 h-3 rounded-full bg-gray-500 inline-block ml-2"></span> Aucune
-            <span className="text-gray-400 ml-4">{filteredSummits.length} sommet(s)</span>
-          </div>
+          <button onClick={() => setFilterRecent(!filterRecent)} className={`text-xs font-semibold px-3 py-2 rounded-xl border transition ${filterRecent ? "bg-orange-500 border-orange-500 text-white" : "bg-zinc-900 border-zinc-700 text-gray-300 hover:border-orange-500"}`}>
+            🔥 Actifs ce mois
+          </button>
+        </div>
+
+        {/* Légende — sur sa propre ligne, wrap complet sur mobile */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-400 mb-6">
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> &lt; 7j</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span> &lt; 30j</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Ancien</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-gray-500 inline-block"></span> Aucune</span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-380px)] lg:min-h-[500px]">

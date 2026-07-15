@@ -278,8 +278,8 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-black text-white">
       <Navbar />
 
-      <section className="p-10">
-        <h1 className="text-5xl font-bold mb-2">Mon profil</h1>
+      <section className="p-5 sm:p-10">
+        <h1 className="text-3xl sm:text-5xl font-bold mb-2">Mon profil</h1>
         <p className="text-amber-400 italic text-sm mb-4">&ldquo;Le relief est là pour te rappeler ta finesse réelle.&rdquo;</p>
 
         {(newSuspentes > 0 || newComments > 0) && (
@@ -304,26 +304,6 @@ export default function ProfilePage() {
             )}
           </div>
         )}
-
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{sitesCount}</p>
-            <p className="text-gray-400 text-sm mt-1">Spot(s) ajouté(s)</p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{outingsCount}</p>
-            <p className="text-gray-400 text-sm mt-1">Sortie(s)</p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{topicsCount}</p>
-            <p className="text-gray-400 text-sm mt-1">Discussion(s)</p>
-          </div>
-          <a href="/profile/flights" className="bg-zinc-900 border border-zinc-800 hover:border-green-500 transition rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{flightLogsCount}</p>
-            <p className="text-gray-400 text-sm mt-1">Vol(s) enregistré(s)</p>
-            <p className="text-green-400 text-xs mt-2">Voir le journal</p>
-          </a>
-        </div>
 
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
 
@@ -463,6 +443,27 @@ export default function ProfilePage() {
 
         {/* Stats graphiques vols par mois */}
         <FlightStatsSection userId={user?.id} />
+
+        {/* Stats globales — en bas de page */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
+            <p className="text-3xl font-bold text-green-400">{sitesCount}</p>
+            <p className="text-gray-400 text-sm mt-1">Spot(s) ajouté(s)</p>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
+            <p className="text-3xl font-bold text-green-400">{outingsCount}</p>
+            <p className="text-gray-400 text-sm mt-1">Sortie(s)</p>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
+            <p className="text-3xl font-bold text-green-400">{topicsCount}</p>
+            <p className="text-gray-400 text-sm mt-1">Discussion(s)</p>
+          </div>
+          <a href="/profile/flights" className="bg-zinc-900 border border-zinc-800 hover:border-green-500 transition rounded-2xl p-6 text-center">
+            <p className="text-3xl font-bold text-green-400">{flightLogsCount}</p>
+            <p className="text-gray-400 text-sm mt-1">Vol(s) enregistré(s)</p>
+            <p className="text-green-400 text-xs mt-2">Voir le journal</p>
+          </a>
+        </div>
 
       </section>
     </main>
