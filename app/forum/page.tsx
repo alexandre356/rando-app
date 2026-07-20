@@ -125,7 +125,21 @@ export default function ForumPage() {
 
         <p className="text-gray-400 mb-6">{filteredTopics.length} discussion(s)</p>
 
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
+        {/* Mobile : menu déroulant */}
+        <div className="sm:hidden mb-8">
+          <select
+            value={activeCategory}
+            onChange={(e) => setActiveCategory(e.target.value)}
+            className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-semibold text-white focus:outline-none focus:border-green-500"
+          >
+            {["Tous", ...CATEGORIES].map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop : pills */}
+        <div className="hidden sm:flex flex-wrap gap-2 mb-8">
           {["Tous", ...CATEGORIES].map((cat) => (
             <button
               key={cat}
