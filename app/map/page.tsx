@@ -44,6 +44,7 @@ export default function MapPage() {
   const [summits, setSummits] = useState<Summit[]>([]);
   const [selectedSummit, setSelectedSummit] = useState<Summit | null>(null);
   const [viewState, setViewState] = useState({ longitude: 6.5, latitude: 45.5, zoom: 7 });
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [search, setSearch] = useState("");
   const [massif, setMassif] = useState("");
   const [minElevation, setMinElevation] = useState(0);
@@ -95,6 +96,9 @@ export default function MapPage() {
 
   useEffect(() => {
     async function load() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+
       const { data: summitsData } = await supabase
         .from("summits")
         .select("*")
@@ -217,10 +221,20 @@ export default function MapPage() {
 
       <div className="p-5 sm:p-10">
         <div className="mb-2">
-          <h1 className="text-3xl sm:text-5xl font-bold mb-4">Carte Hike &amp; Fly</h1>
-          <a href="/submit-rando" className="block sm:inline-block text-center bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
-            + Ajouter une randonnée
-          </a>
+          <h1 className="text-3xl sm:text-5xl font-bold mb-2">Carte Hike &amp; Fly</h1>
+          <p className="text-orange-400 italic text-sm mb-4">&ldquo;Si le topo dit facile, prévois compliqué.&rdquo;</p>
+
+          {isLoggedIn === true && (
+            <a href="/submit-rando" className="block sm:inline-block text-center bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
+              + Ajouter une randonnée
+            </a>
+          )}
+
+          {isLoggedIn === false && (
+            <p className="text-sm text-gray-400">
+              <a href="/" className="text-green-400 hover:underline font-semibold">Connecte-toi</a> pour ajouter une randonnée à la carte.
+            </p>
+          )}
         </div>
 
         <p className="text-gray-400 mb-6">{filteredSummits.length} sommet(s)</p>

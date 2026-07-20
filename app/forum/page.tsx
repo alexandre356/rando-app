@@ -117,6 +117,12 @@ export default function ForumPage() {
           }
         />
 
+        {!isLoggedIn && (
+          <p className="text-sm text-gray-400 mb-6">
+            <a href="/" className="text-green-400 hover:underline font-semibold">Connecte-toi</a> pour lancer une discussion.
+          </p>
+        )}
+
         <p className="text-gray-400 mb-6">{filteredTopics.length} discussion(s)</p>
 
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 -mx-5 px-5 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible sm:pb-0">
@@ -157,10 +163,12 @@ export default function ForumPage() {
         {filteredTopics.length === 0 ? (
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-10 text-center">
             <p className="text-gray-400 text-lg sm:text-xl mb-4">Aucune discussion dans cette catégorie.</p>
-            {isLoggedIn && (
+            {isLoggedIn ? (
               <button onClick={() => setShowForm(true)} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
                 Lancez la première discussion !
               </button>
+            ) : (
+              <a href="/" className="text-green-400 hover:underline">Connectez-vous pour lancer la première discussion</a>
             )}
           </div>
         ) : (

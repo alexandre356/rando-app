@@ -270,6 +270,12 @@ export default function CommunautePage() {
           }
         />
 
+        {!isLoggedIn && (
+          <p className="text-sm text-gray-400 -mt-4 mb-6">
+            <a href="/" className="text-green-400 hover:underline font-semibold">Connecte-toi</a> pour partager une sortie.
+          </p>
+        )}
+
         <p className="text-gray-400 mb-8">{outings.length} sortie(s) partagée(s)</p>
 
         {/* Filtres */}
@@ -302,7 +308,7 @@ export default function CommunautePage() {
             {isLoggedIn ? (
               <a href="/communaute/submit" className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">Soyez le premier !</a>
             ) : (
-              <a href="/login" className="text-green-400 hover:underline">Connectez-vous pour partager une sortie</a>
+              <a href="/" className="text-green-400 hover:underline">Connectez-vous pour partager une sortie</a>
             )}
           </div>
         ) : (
