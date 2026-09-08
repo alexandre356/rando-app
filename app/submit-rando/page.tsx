@@ -2,7 +2,7 @@
 
 import Navbar from "../../components/Navbar";
 import { supabase } from "../../lib/supabase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Map, { Marker, Popup } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -59,7 +59,7 @@ async function reverseGeocode(lat: number, lng: number, token: string): Promise<
   return "";
 }
 
-export default function SubmitRandoPage() {
+function SubmitRandoForm() {
   const searchParams = useSearchParams();
   const preselectSummitId = searchParams.get("summitId");
 
@@ -583,5 +583,19 @@ export default function SubmitRandoPage() {
         </form>
       </section>
     </main>
+  );
+}
+
+export default function SubmitRandoPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-black text-white">
+        <div className="flex items-center justify-center h-96">
+          <p className="text-gray-400 text-xl">Chargement...</p>
+        </div>
+      </main>
+    }>
+      <SubmitRandoForm />
+    </Suspense>
   );
 }
