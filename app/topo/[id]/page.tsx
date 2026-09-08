@@ -178,145 +178,138 @@ export default function TopoPage() {
     setReportReason("");
   }
 
-  if (loading) return <main className="min-h-screen bg-black text-white"><Navbar /><div className="flex items-center justify-center h-96"><p className="text-gray-400 text-xl">Chargement...</p></div></main>;
-  if (!topo || !summit) return <main className="min-h-screen bg-black text-white"><Navbar /><div className="flex items-center justify-center h-96"><p className="text-gray-400 text-xl">Topo introuvable.</p></div></main>;
+  if (loading) return <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]"><Navbar /><div className="flex items-center justify-center h-96"><p className="text-[#6F7E86] text-xl">Chargement...</p></div></main>;
+  if (!topo || !summit) return <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]"><Navbar /><div className="flex items-center justify-center h-96"><p className="text-[#6F7E86] text-xl">Topo introuvable.</p></div></main>;
 
   const orientations = topo.orientation ? topo.orientation.split(",") : [];
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
       <Navbar />
       <section className="p-5 sm:p-10">
-        <a href={`/summit/${summit.id}`} className="text-gray-400 hover:text-green-400 transition mb-8 inline-block">
+        <a href={`/summit/${summit.id}`} className="text-[#6F7E86] hover:text-[#1C0F12] transition mb-8 inline-block">
           &larr; Retour à {summit.name}
         </a>
 
-        <h1 className="text-3xl sm:text-5xl font-bold mb-1">{topo.name}</h1>
-        <p className="text-green-400 text-lg mb-1">{summit.name} — {summit.massif}</p>
-        <p className="text-teal-400 italic text-sm mb-4">&ldquo;Quand ça bip très fort, souris et fais semblant de comprendre.&rdquo;</p>
+        <h1 className="text-3xl sm:text-5xl font-extrabold mb-1">{topo.name}</h1>
+        <p className="text-[#6F7E86] font-semibold text-lg mb-4">{summit.name} — {summit.massif}</p>
 
         <div className="flex flex-wrap items-center gap-4 mb-8">
           {avgRating && (
-            <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2">
-              <span className="text-yellow-400">{"⭐".repeat(Math.round(avgRating))}</span>
-              <span className="text-white font-semibold">{avgRating}/5</span>
-              <span className="text-gray-400 text-sm">({flightCount} vol{flightCount > 1 ? "s" : ""})</span>
+            <div className="flex items-center gap-2 bg-white border border-[#B9CFD0] rounded-xl px-4 py-2">
+              <span className="text-yellow-500">{"⭐".repeat(Math.round(avgRating))}</span>
+              <span className="text-[#1C0F12] font-bold">{avgRating}/5</span>
+              <span className="text-[#6F7E86] text-sm">({flightCount} vol{flightCount > 1 ? "s" : ""})</span>
             </div>
           )}
           <button onClick={() => setShowReport(!showReport)}
-            className="text-xs text-gray-500 hover:text-orange-400 transition border border-zinc-800 hover:border-orange-500 rounded-xl px-3 py-2">
+            className="text-xs text-[#6F7E86] hover:text-orange-600 transition border border-[#B9CFD0] hover:border-orange-500 rounded-xl px-3 py-2">
             ⚠️ Signaler un problème
           </button>
-          {reportSent && <p className="text-green-400 text-xs">Signalement envoyé, merci !</p>}
+          {reportSent && <p className="text-[#1C0F12] font-semibold text-xs">Signalement envoyé, merci !</p>}
         </div>
 
         {showReport && (
-          <div className="bg-orange-950 border border-orange-800 rounded-2xl p-5 mb-6">
-            <h3 className="text-orange-400 font-bold mb-3">⚠️ Signaler un problème sur ce topo</h3>
+          <div className="bg-orange-50 border border-orange-300 rounded-2xl p-5 mb-6">
+            <h3 className="text-orange-700 font-bold mb-3">⚠️ Signaler un problème sur ce topo</h3>
             <textarea
               placeholder="Décrivez le problème (informations incorrectes, danger non signalé, topo obsolète...)"
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
               rows={3}
-              className="w-full bg-black border border-orange-700 rounded-xl px-4 py-3 text-sm mb-3 focus:outline-none focus:border-orange-500"
+              className="w-full bg-white border border-orange-300 rounded-xl px-4 py-3 text-sm mb-3 text-[#1C0F12] focus:outline-none focus:border-orange-500"
             />
             <div className="flex gap-3">
-              <button onClick={submitReport} className="bg-orange-500 hover:bg-orange-600 transition px-5 py-2 rounded-xl font-semibold text-sm">
+              <button onClick={submitReport} className="bg-orange-500 hover:bg-orange-600 text-white transition px-5 py-2 rounded-xl font-semibold text-sm">
                 Envoyer le signalement
               </button>
-              <button onClick={() => setShowReport(false)} className="bg-zinc-700 hover:bg-zinc-600 transition px-5 py-2 rounded-xl text-sm">
+              <button onClick={() => setShowReport(false)} className="bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition px-5 py-2 rounded-xl text-sm">
                 Annuler
               </button>
             </div>
           </div>
         )}
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-gray-400 text-sm mb-1">Dénivelé +</p>
-            <p className="text-3xl font-bold">{topo.elevation_gain ?? "?"} <span className="text-lg font-normal text-gray-400">m</span></p>
-            {estimateWalkingTime(topo.elevation_gain, topo.approach_type) && (
-              <p className="text-green-400 text-sm mt-1">⏱️ ~{estimateWalkingTime(topo.elevation_gain, topo.approach_type)} de montée</p>
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          {/* Gauche : comment s'y rendre */}
+          <div className="lg:col-span-2 bg-white border border-[#B9CFD0] rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="text-xl font-bold">Comment s&apos;y rendre</h2>
+              {topo.approach_type && (
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${topo.approach_type === "Alpinisme" ? "bg-[#6F7E86] text-white" : "bg-[#1C0F12] text-[#E4E4E4]"}`}>
+                  {topo.approach_type}
+                </span>
+              )}
+            </div>
+            {topo.approach_notes ? (
+              <p className="text-[#1C0F12]/80 leading-relaxed whitespace-pre-line">{topo.approach_notes}</p>
+            ) : (
+              <p className="text-[#6F7E86] italic">Aucune description d&apos;accès pour l&apos;instant.</p>
             )}
           </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-gray-400 text-sm mb-1">Manche à air</p>
-            <p className="text-3xl font-bold flex items-center gap-2">
-              {topo.has_windsock ? <>🎏 <span className="text-green-400 text-lg">Présente</span></> : <span className="text-gray-500 text-lg">Absente</span>}
-            </p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col items-center justify-center">
-            <p className="text-gray-400 text-sm mb-2">Orientations</p>
-            <svg width="160" height="160" viewBox="0 0 200 200">
-              {[
-                { code: "N",  angle: 0 },
-                { code: "NE", angle: 45 },
-                { code: "E",  angle: 90 },
-                { code: "SE", angle: 135 },
-                { code: "S",  angle: 180 },
-                { code: "SO", angle: 225 },
-                { code: "O",  angle: 270 },
-                { code: "NO", angle: 315 },
-              ].map((dir) => {
-                const cx = 100; const cy = 100;
-                const outerR = 78; const innerR = 30; const half = 22;
-                const a1 = ((dir.angle - half - 90) * Math.PI) / 180;
-                const a2 = ((dir.angle + half - 90) * Math.PI) / 180;
-                const x1 = cx + outerR * Math.cos(a1); const y1 = cy + outerR * Math.sin(a1);
-                const x2 = cx + outerR * Math.cos(a2); const y2 = cy + outerR * Math.sin(a2);
-                const ix1 = cx + innerR * Math.cos(a1); const iy1 = cy + innerR * Math.sin(a1);
-                const ix2 = cx + innerR * Math.cos(a2); const iy2 = cy + innerR * Math.sin(a2);
-                const path = `M ${ix1} ${iy1} L ${x1} ${y1} A ${outerR} ${outerR} 0 0 1 ${x2} ${y2} L ${ix2} ${iy2} A ${innerR} ${innerR} 0 0 0 ${ix1} ${iy1} Z`;
-                const lr = outerR + 16;
-                const la = ((dir.angle - 90) * Math.PI) / 180;
-                const lx = cx + lr * Math.cos(la); const ly = cy + lr * Math.sin(la);
-                const isSelected = orientations.includes(dir.code);
-                return (
-                  <g key={dir.code}>
-                    <path d={path} fill={isSelected ? "#22c55e" : "#27272a"} stroke="#000" strokeWidth={1.5} opacity={isSelected ? 1 : 0.6} />
-                    <text x={lx} y={ly} textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight={isSelected ? "bold" : "normal"} fill={isSelected ? "#22c55e" : "#6b7280"}>
-                      {dir.code}
-                    </text>
-                  </g>
-                );
-              })}
-              <circle cx={100} cy={100} r={26} fill="#18181b" stroke="#3f3f46" strokeWidth={1} />
-              <text x={100} y={100} textAnchor="middle" dominantBaseline="central" fontSize="9" fill="#9ca3af">
-                {orientations.length > 0 ? orientations.join(" ") : "?"}
-              </text>
-            </svg>
-          </div>
-        </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-gray-400 text-sm mb-1">Lieu de départ</p>
-            <p className="text-xl font-semibold">{topo.start_name || "Non renseigné"}</p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-gray-400 text-sm mb-1">Décollage</p>
-            <p className="text-xl font-semibold">{topo.takeoff_name || "Non renseigné"}</p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <p className="text-gray-400 text-sm mb-1">Atterrissage</p>
-            <p className="text-xl font-semibold">{topo.landing_name || "Non renseigné"}</p>
-          </div>
-        </div>
-
-        {topo.approach_type && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-8">
-            <div className="flex items-center gap-3 mb-3">
-              <h2 className="text-xl font-bold">Approche</h2>
-              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${topo.approach_type === "Alpinisme" ? "bg-orange-500 text-white" : "bg-green-500 text-white"}`}>{topo.approach_type}</span>
+          {/* Droite : fiche technique compacte */}
+          <div className="bg-white border border-[#B9CFD0] rounded-2xl p-5 text-sm">
+            <div className="flex justify-between py-2 border-b border-[#B9CFD0]/60">
+              <span className="text-[#6F7E86]">D+</span>
+              <span className="font-bold">{topo.elevation_gain ?? "?"} m</span>
             </div>
-            {topo.approach_notes && <p className="text-gray-300 leading-relaxed">{topo.approach_notes}</p>}
-          </div>
-        )}
+            {estimateWalkingTime(topo.elevation_gain, topo.approach_type) && (
+              <div className="flex justify-between py-2 border-b border-[#B9CFD0]/60">
+                <span className="text-[#6F7E86]">Durée estimée</span>
+                <span className="font-bold">~{estimateWalkingTime(topo.elevation_gain, topo.approach_type)}</span>
+              </div>
+            )}
+            <div className="flex justify-between py-2 border-b border-[#B9CFD0]/60">
+              <span className="text-[#6F7E86]">Manche à air</span>
+              <span className="font-bold">{topo.has_windsock ? "🎏 Présente" : "Absente"}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-[#B9CFD0]/60">
+              <span className="text-[#6F7E86]">Départ</span>
+              <span className="font-bold text-right">{topo.start_name || "—"}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-[#B9CFD0]/60">
+              <span className="text-[#6F7E86]">Décollage</span>
+              <span className="font-bold text-right">{topo.takeoff_name || "—"}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-[#B9CFD0]/60">
+              <span className="text-[#6F7E86]">Atterrissage</span>
+              <span className="font-bold text-right">{topo.landing_name || "—"}</span>
+            </div>
 
+            <div className="flex items-center justify-between py-2">
+              <span className="text-[#6F7E86]">Orientation</span>
+              <div className="flex items-center gap-2">
+                <svg width="44" height="44" viewBox="0 0 200 200" className="shrink-0">
+                  {[
+                    { code: "N",  angle: 0 }, { code: "NE", angle: 45 },
+                    { code: "E",  angle: 90 }, { code: "SE", angle: 135 },
+                    { code: "S",  angle: 180 }, { code: "SO", angle: 225 },
+                    { code: "O",  angle: 270 }, { code: "NO", angle: 315 },
+                  ].map((dir) => {
+                    const cx = 100; const cy = 100; const outerR = 78; const innerR = 30; const half = 22;
+                    const a1 = ((dir.angle - half - 90) * Math.PI) / 180;
+                    const a2 = ((dir.angle + half - 90) * Math.PI) / 180;
+                    const x1 = cx + outerR * Math.cos(a1); const y1 = cy + outerR * Math.sin(a1);
+                    const x2 = cx + outerR * Math.cos(a2); const y2 = cy + outerR * Math.sin(a2);
+                    const ix1 = cx + innerR * Math.cos(a1); const iy1 = cy + innerR * Math.sin(a1);
+                    const ix2 = cx + innerR * Math.cos(a2); const iy2 = cy + innerR * Math.sin(a2);
+                    const path = `M ${ix1} ${iy1} L ${x1} ${y1} A ${outerR} ${outerR} 0 0 1 ${x2} ${y2} L ${ix2} ${iy2} A ${innerR} ${innerR} 0 0 0 ${ix1} ${iy1} Z`;
+                    const isSelected = orientations.includes(dir.code);
+                    return <path key={dir.code} d={path} fill={isSelected ? "#1C0F12" : "#B9CFD0"} stroke="#fff" strokeWidth={1.5} opacity={isSelected ? 1 : 0.5} />;
+                  })}
+                </svg>
+                <span className="font-bold">{orientations.length > 0 ? orientations.join(", ") : "?"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Danger — rouge conservé volontairement : alerte sécurité, indépendante de la palette de marque */}
         {topo.danger && (
-          <div className="bg-red-950 border border-red-800 rounded-2xl p-6 mb-8">
-            <h2 className="text-xl font-bold mb-3 text-red-400">Dangers et remarques</h2>
-            <p className="text-red-200 leading-relaxed">{topo.danger}</p>
+          <div className="bg-red-50 border border-red-300 rounded-2xl p-6 mb-8">
+            <h2 className="text-xl font-bold mb-3 text-red-700">Dangers et remarques</h2>
+            <p className="text-red-800 leading-relaxed">{topo.danger}</p>
           </div>
         )}
 
@@ -325,13 +318,13 @@ export default function TopoPage() {
             <h2 className="text-xl font-bold mb-3">Localisation</h2>
             <div className="flex gap-2 sm:gap-3 mb-4 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
               {(["mapbox", "ign", "opentopo", "satellite"] as const).map((layer) => (
-                <button key={layer} onClick={() => setMapLayer(layer)} className={`text-sm font-semibold px-5 py-2 rounded-xl border transition ${mapLayer === layer ? "bg-cyan-500 border-cyan-500 text-white" : "bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500"}`}>
+                <button key={layer} onClick={() => setMapLayer(layer)} className={`text-sm font-semibold px-5 py-2 rounded-xl border transition ${mapLayer === layer ? "bg-[#1C0F12] border-[#1C0F12] text-[#E4E4E4]" : "bg-white border-[#B9CFD0] text-[#6F7E86] hover:border-[#1C0F12]"}`}>
                   {layer === "mapbox" ? "Mapbox" : layer === "ign" ? "Carte IGN" : layer === "opentopo" ? "OpenTopoMap" : "Satellite"}
                 </button>
               ))}
             </div>
             <div className="grid lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-2 h-96 rounded-2xl overflow-hidden border border-zinc-800">
+              <div className="lg:col-span-2 h-96 rounded-2xl overflow-hidden border border-[#B9CFD0]">
                 <Map
                   initialViewState={{ longitude: summit.longitude, latitude: summit.latitude, zoom: 12 }}
                   mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
@@ -340,12 +333,12 @@ export default function TopoPage() {
                 >
                   {mapLayer === "ign" && (
                     <Source id="ign-plan" type="raster" tiles={["https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png"]} tileSize={256}>
-                      <Layer id="ign-plan-layer" type="raster" paint={{}} beforeId="gpx-line" />
+                      <Layer id="ign-plan-layer" type="raster" paint={{}} {...(gpxLine ? { beforeId: "gpx-line" } : {})} />
                     </Source>
                   )}
                   {mapLayer === "opentopo" && (
                     <Source id="opentopo" type="raster" tiles={["https://a.tile.opentopomap.org/{z}/{x}/{y}.png", "https://b.tile.opentopomap.org/{z}/{x}/{y}.png"]} tileSize={256}>
-                      <Layer id="opentopo-layer" type="raster" paint={{}} beforeId="gpx-line" />
+                      <Layer id="opentopo-layer" type="raster" paint={{}} {...(gpxLine ? { beforeId: "gpx-line" } : {})} />
                     </Source>
                   )}
                   <Marker longitude={summit.longitude} latitude={summit.latitude} anchor="bottom">
@@ -371,28 +364,28 @@ export default function TopoPage() {
 
               {gpxUrl && (
                 <div className="h-96 flex flex-col gap-3">
-                  <a href={gpxUrl} download={gpxName || "trace.gpx"} className="flex items-center justify-center bg-zinc-900 border border-zinc-700 hover:border-cyan-500 transition rounded-xl px-4 py-3 font-semibold text-sm shrink-0">
+                  <a href={gpxUrl} download={gpxName || "trace.gpx"} className="flex items-center justify-center bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition rounded-xl px-4 py-3 font-semibold text-sm shrink-0">
                     Télécharger la trace GPX
                   </a>
                   {gpxStats && (
                     <div className="grid grid-cols-3 gap-2 shrink-0">
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center">
-                        <p className="text-gray-400 text-xs mb-1">Distance</p>
-                        <p className="text-base font-bold text-cyan-400">{gpxStats.totalDistance} km</p>
+                      <div className="bg-white border border-[#B9CFD0] rounded-xl p-3 text-center">
+                        <p className="text-[#6F7E86] text-xs mb-1">Distance</p>
+                        <p className="text-base font-bold text-[#1C0F12]">{gpxStats.totalDistance} km</p>
                       </div>
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center">
-                        <p className="text-gray-400 text-xs mb-1">D+</p>
-                        <p className="text-base font-bold text-cyan-400">{gpxStats.elevationGain} m</p>
+                      <div className="bg-white border border-[#B9CFD0] rounded-xl p-3 text-center">
+                        <p className="text-[#6F7E86] text-xs mb-1">D+</p>
+                        <p className="text-base font-bold text-[#1C0F12]">{gpxStats.elevationGain} m</p>
                       </div>
-                      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-center">
-                        <p className="text-gray-400 text-xs mb-1">Alt. max</p>
-                        <p className="text-base font-bold text-cyan-400">{gpxStats.maxAlt} m</p>
+                      <div className="bg-white border border-[#B9CFD0] rounded-xl p-3 text-center">
+                        <p className="text-[#6F7E86] text-xs mb-1">Alt. max</p>
+                        <p className="text-base font-bold text-[#1C0F12]">{gpxStats.maxAlt} m</p>
                       </div>
                     </div>
                   )}
                   {elevationProfile.length > 0 && (
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 flex-1 flex flex-col min-h-0">
-                      <h3 className="text-xs font-semibold text-gray-400 mb-2 shrink-0">Profil d&apos;altitude</h3>
+                    <div className="bg-white border border-[#B9CFD0] rounded-2xl p-3 flex-1 flex flex-col min-h-0">
+                      <h3 className="text-xs font-semibold text-[#6F7E86] mb-2 shrink-0">Profil d&apos;altitude</h3>
                       <div className="flex-1 min-h-0">
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={elevationProfile} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
@@ -402,9 +395,9 @@ export default function TopoPage() {
                                 <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
                               </linearGradient>
                             </defs>
-                            <XAxis dataKey="distance" tick={{ fill: "#6b7280", fontSize: 10 }} tickFormatter={(v) => `${v}km`} />
-                            <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} tickFormatter={(v) => `${v}m`} width={40} />
-                            <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid #3f3f46", borderRadius: "8px" }} labelStyle={{ color: "#9ca3af" }} itemStyle={{ color: "#06b6d4" }} formatter={(value) => [`${value} m`, "Altitude"]} labelFormatter={(label) => `${label} km`} />
+                            <XAxis dataKey="distance" tick={{ fill: "#6F7E86", fontSize: 10 }} tickFormatter={(v) => `${v}km`} />
+                            <YAxis tick={{ fill: "#6F7E86", fontSize: 10 }} tickFormatter={(v) => `${v}m`} width={40} />
+                            <Tooltip contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #B9CFD0", borderRadius: "8px" }} labelStyle={{ color: "#6F7E86" }} itemStyle={{ color: "#06b6d4" }} formatter={(value) => [`${value} m`, "Altitude"]} labelFormatter={(label) => `${label} km`} />
                             <Area type="monotone" dataKey="altitude" stroke="#06b6d4" strokeWidth={2} fill="url(#altGradient)" dot={false} />
                           </AreaChart>
                         </ResponsiveContainer>
@@ -422,17 +415,18 @@ export default function TopoPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
               <h2 className="text-xl font-bold">Météo et conditions de vol</h2>
               <div className="flex gap-2 sm:gap-3 flex-wrap">
-                <a href={`https://www.meteo-parapente.com/${summit.latitude}/${summit.longitude}`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Meteo-Parapente</a>
-                <a href="https://www.balisemeteo.com" target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Balises FFVL</a>
-                <a href={`https://www.spotair.mobi?lat=${summit.latitude}&lng=${summit.longitude}&zoom=12&layers=wind,airspaces,webcams`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-zinc-900 border-zinc-700 text-gray-300 hover:border-cyan-500 transition">Ouvrir SpotAiR</a>
-                <a href={`https://fr.avalanche.report/#/map?lat=${summit.latitude}&lng=${summit.longitude}&zoom=10`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-yellow-950 border-yellow-700 text-yellow-300 hover:border-yellow-400 transition">❄️ Bulletin Avalanche</a>
+                <a href={`https://www.meteo-parapente.com/${summit.latitude}/${summit.longitude}`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-white border-[#B9CFD0] text-[#6F7E86] hover:border-[#1C0F12] transition">Meteo-Parapente</a>
+                <a href="https://www.balisemeteo.com" target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-white border-[#B9CFD0] text-[#6F7E86] hover:border-[#1C0F12] transition">Balises FFVL</a>
+                <a href={`https://www.spotair.mobi?lat=${summit.latitude}&lng=${summit.longitude}&zoom=12&layers=wind,airspaces,webcams`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-white border-[#B9CFD0] text-[#6F7E86] hover:border-[#1C0F12] transition">Ouvrir SpotAiR</a>
+                {/* Bulletin avalanche — jaune conservé volontairement : alerte sécurité */}
+                <a href={`https://fr.avalanche.report/#/map?lat=${summit.latitude}&lng=${summit.longitude}&zoom=10`} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold px-3 sm:px-5 py-2 rounded-xl border bg-yellow-50 border-yellow-400 text-yellow-800 hover:border-yellow-500 transition">❄️ Bulletin Avalanche</a>
               </div>
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
-              <div className="h-[500px] rounded-2xl overflow-hidden border border-zinc-800">
+              <div className="h-[500px] rounded-2xl overflow-hidden border border-[#B9CFD0]">
                 <iframe src={`https://embed.windy.com/embed2.html?lat=${summit.latitude}&lon=${summit.longitude}&zoom=11&level=surface&overlay=wind&menu=&message=&marker=&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=${summit.latitude}&detailLon=${summit.longitude}&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`} width="100%" height="100%" frameBorder="0" />
               </div>
-              <div className="h-[500px] rounded-2xl overflow-hidden border border-zinc-800">
+              <div className="h-[500px] rounded-2xl overflow-hidden border border-[#B9CFD0]">
                 <iframe src={`https://www.spotair.mobi/widget/map?lat=${summit.latitude}&lng=${summit.longitude}&zoom=12&layers=wind,airspaces,webcams`} width="100%" height="100%" frameBorder="0" />
               </div>
             </div>
@@ -444,13 +438,13 @@ export default function TopoPage() {
             <h2 className="text-xl font-bold mb-4">Photos</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {photos.map((url, index) => (
-                <img key={index} src={url} alt={`Photo ${index + 1}`} className="w-full h-48 object-cover rounded-2xl border border-zinc-800" />
+                <img key={index} src={url} alt={`Photo ${index + 1}`} className="w-full h-48 object-cover rounded-2xl border border-[#B9CFD0]" />
               ))}
             </div>
           </div>
         )}
 
-        <p className="text-gray-600 text-sm">Ajouté le {new Date(topo.created_at).toLocaleDateString("fr-FR")}</p>
+        <p className="text-[#6F7E86] text-sm">Ajouté le {new Date(topo.created_at).toLocaleDateString("fr-FR")}</p>
       </section>
     </main>
   );

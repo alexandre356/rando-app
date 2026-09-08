@@ -3,6 +3,7 @@
 import Navbar from "../../components/Navbar";
 import { supabase } from "../../lib/supabase";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Map, { Marker, Popup } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -59,7 +60,10 @@ async function reverseGeocode(lat: number, lng: number, token: string): Promise<
 }
 
 export default function SubmitRandoPage() {
-  const [mode, setMode] = useState<"new" | "existing">("new");
+  const searchParams = useSearchParams();
+  const preselectSummitId = searchParams.get("summitId");
+
+  const [mode, setMode] = useState<"new" | "existing">(preselectSummitId ? "existing" : "new");
   const [existingSummits, setExistingSummits] = useState<Summit[]>([]);
   const [selectedSummit, setSelectedSummit] = useState<Summit | null>(null);
   const [popupSummit, setPopupSummit] = useState<Summit | null>(null);
@@ -102,10 +106,24 @@ export default function SubmitRandoPage() {
   useEffect(() => {
     async function loadSummits() {
       const { data } = await supabase.from("summits").select("id, name, massif, latitude, longitude").eq("status", "approved");
-      setExistingSummits(data || []);
+      const summitsList = data || [];
+      setExistingSummits(summitsList);
+
+      // Pré-sélection depuis l'URL (?summitId=...), ex: bouton "+ Ajouter un topo" sur une fiche sommet
+      if (preselectSummitId) {
+        const match = summitsList.find((s) => s.id === preselectSummitId);
+        if (match) {
+          setMode("existing");
+          setSelectedSummit(match);
+          if (match.massif) setFilterMassif(match.massif);
+          if (match.latitude && match.longitude) {
+            setViewState({ longitude: match.longitude, latitude: match.latitude, zoom: 12 });
+          }
+        }
+      }
     }
     loadSummits();
-  }, []);
+  }, [preselectSummitId]);
 
   function handleMapClick(event: { lngLat: { lat: number; lng: number } }) {
     const { lat, lng } = event.lngLat;
@@ -394,9 +412,9 @@ export default function SubmitRandoPage() {
               </div>
               <div className="w-full h-72 rounded-2xl overflow-hidden border border-zinc-700">
                 <Map
-                  longitude={spotLng ? Number(spotLng) : 6.5}
-                  latitude={spotLat ? Number(spotLat) : 45.5}
-                  zoom={spotLng ? 13 : 7}
+                  longitude={spotLng ? Number(spotLng) : (selectedSummit?.longitude ?? 6.5)}
+                  latitude={spotLat ? Number(spotLat) : (selectedSummit?.latitude ?? 45.5)}
+                  zoom={spotLng || selectedSummit?.longitude ? 13 : 7}
                   onMove={() => {}}
                   onClick={async (e) => {
                     const { lat, lng } = e.lngLat;
@@ -420,9 +438,14 @@ export default function SubmitRandoPage() {
                   mapStyle="mapbox://styles/mapbox/outdoors-v12"
                   style={{ width: "100%", height: "100%" }}
                   cursor="crosshair">
-                  {spotLat && spotLng && (
+                  {mode === "new" && spotLat && spotLng && (
                     <Marker longitude={Number(spotLng)} latitude={Number(spotLat)} anchor="center">
                       <div className="w-4 h-4 bg-zinc-400 rounded-full border-2 border-white opacity-50" />
+                    </Marker>
+                  )}
+                  {mode === "existing" && selectedSummit?.latitude && selectedSummit?.longitude && (
+                    <Marker longitude={selectedSummit.longitude} latitude={selectedSummit.latitude} anchor="center">
+                      <div className="w-4 h-4 bg-cyan-400 rounded-full border-2 border-white opacity-70" />
                     </Marker>
                   )}
                   {startLat && startLng && (

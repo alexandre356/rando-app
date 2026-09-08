@@ -19,7 +19,10 @@ export default function PageHeader({
       <h1 className="text-3xl sm:text-5xl font-bold">{title}</h1>
 
       {tagline && (
-        <p className={`italic text-sm mt-2 ${taglineClassName}`}>
+        <p
+          className={`text-2xl mt-2 ${taglineClassName}`}
+          style={{ fontFamily: "'Brush Script MT', 'Segoe Script', cursive" }}
+        >
           &ldquo;{tagline}&rdquo;
         </p>
       )}

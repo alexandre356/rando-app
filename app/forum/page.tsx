@@ -87,29 +87,29 @@ export default function ForumPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black text-white">
+      <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
         <Navbar />
         <div className="flex items-center justify-center h-96">
-          <p className="text-gray-400 text-xl">Chargement...</p>
+          <p className="text-[#6F7E86] text-xl">Chargement...</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
       <Navbar />
 
       <section className="p-5 sm:p-10">
         <PageHeader
           title="Forum"
           tagline="Si ça vole pas, cours plus vite."
-          taglineClassName="text-yellow-400"
+          taglineClassName="text-[#059669]"
           action={
             isLoggedIn && !showForm ? (
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold"
+                className="inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-semibold"
               >
                 + Nouvelle discussion
               </button>
@@ -118,19 +118,19 @@ export default function ForumPage() {
         />
 
         {!isLoggedIn && (
-          <p className="text-sm text-gray-400 mb-6">
-            <a href="/" className="text-green-400 hover:underline font-semibold">Connecte-toi</a> pour lancer une discussion.
+          <p className="text-sm text-[#6F7E86] mb-6">
+            <a href="/" className="text-[#1C0F12] font-bold hover:underline font-semibold">Connecte-toi</a> pour lancer une discussion.
           </p>
         )}
 
-        <p className="text-gray-400 mb-6">{filteredTopics.length} discussion(s)</p>
+        <p className="text-[#6F7E86] mb-6">{filteredTopics.length} discussion(s)</p>
 
         {/* Mobile : menu déroulant */}
         <div className="sm:hidden mb-8">
           <select
             value={activeCategory}
             onChange={(e) => setActiveCategory(e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm font-semibold text-white focus:outline-none focus:border-green-500"
+            className="w-full bg-white border border-[#B9CFD0] rounded-xl px-4 py-3 text-sm font-semibold text-[#1C0F12] focus:outline-none focus:border-[#1C0F12]"
           >
             {["Tous", ...CATEGORIES].map((cat) => (
               <option key={cat} value={cat}>{cat}</option>
@@ -146,8 +146,8 @@ export default function ForumPage() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap shrink-0 ${
                 activeCategory === cat
-                  ? "bg-green-500 text-white"
-                  : "bg-zinc-900 border border-zinc-700 text-gray-300 hover:border-green-500"
+                  ? "bg-[#1C0F12] text-[#E4E4E4]"
+                  : "bg-white border border-[#B9CFD0] text-[#1C0F12]/80 hover:border-[#1C0F12]"
               }`}
             >
               {cat}
@@ -156,45 +156,43 @@ export default function ForumPage() {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="bg-zinc-900 border border-green-500 rounded-2xl p-5 sm:p-6 mb-8 space-y-4">
+          <form onSubmit={handleSubmit} className="bg-white border border-[#1C0F12] rounded-2xl p-5 sm:p-6 mb-8 space-y-4">
             <h2 className="text-xl font-bold">Nouvelle discussion</h2>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3">
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#E4E4E4] border border-[#B9CFD0] rounded-xl px-4 py-3">
               {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
             </select>
-            <input type="text" placeholder="Titre de la discussion" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3" required />
-            <textarea placeholder="Contenu de votre message..." value={content} onChange={(e) => setContent(e.target.value)} rows={5} className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3" required />
+            <input type="text" placeholder="Titre de la discussion" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-[#E4E4E4] border border-[#B9CFD0] rounded-xl px-4 py-3" required />
+            <textarea placeholder="Contenu de votre message..." value={content} onChange={(e) => setContent(e.target.value)} rows={5} className="w-full bg-[#E4E4E4] border border-[#B9CFD0] rounded-xl px-4 py-3" required />
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button type="submit" disabled={submitting} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold disabled:opacity-50">
+              <button type="submit" disabled={submitting} className="bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-semibold disabled:opacity-50">
                 {submitting ? "Envoi..." : "Publier"}
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="bg-zinc-700 hover:bg-zinc-600 transition px-6 py-3 rounded-xl font-semibold">
-                Annuler
-              </button>
+              <button type="button" onClick={() => setShowForm(false)} className="bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition px-6 py-3 rounded-xl font-semibold">Annuler</button>
             </div>
           </form>
         )}
 
         {filteredTopics.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-10 text-center">
-            <p className="text-gray-400 text-lg sm:text-xl mb-4">Aucune discussion dans cette catégorie.</p>
+          <div className="bg-white border border-[#B9CFD0] rounded-2xl p-6 sm:p-10 text-center">
+            <p className="text-[#6F7E86] text-lg sm:text-xl mb-4">Aucune discussion dans cette catégorie.</p>
             {isLoggedIn ? (
-              <button onClick={() => setShowForm(true)} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
+              <button onClick={() => setShowForm(true)} className="inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-semibold">
                 Lancez la première discussion !
               </button>
             ) : (
-              <a href="/" className="text-green-400 hover:underline">Connectez-vous pour lancer la première discussion</a>
+              <a href="/" className="text-[#1C0F12] font-bold hover:underline">Connectez-vous pour lancer la première discussion</a>
             )}
           </div>
         ) : (
           <div className="space-y-4">
             {filteredTopics.map((topic) => (
-              <a key={topic.id} href={`/forum/${topic.id}`} className="block bg-zinc-900 border border-zinc-800 hover:border-green-500 transition rounded-2xl p-5 sm:p-6">
+              <a key={topic.id} href={`/forum/${topic.id}`} className="block bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition rounded-2xl p-5 sm:p-6">
                 <div className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                   <h2 className="text-lg sm:text-xl font-bold">{topic.title}</h2>
-                  <span className="text-xs bg-zinc-700 text-gray-300 px-3 py-1 rounded-full self-start sm:ml-4 shrink-0">{topic.category || "Divers"}</span>
+                  <span className="text-xs bg-[#B9CFD0]/30 text-[#1C0F12]/80 px-3 py-1 rounded-full self-start sm:ml-4 shrink-0">{topic.category || "Divers"}</span>
                 </div>
-                <p className="text-gray-400 text-sm line-clamp-2 mb-3">{topic.content}</p>
-                <div className="flex gap-4 text-xs text-gray-500">
+                <p className="text-[#6F7E86] text-sm line-clamp-2 mb-3">{topic.content}</p>
+                <div className="flex gap-4 text-xs text-[#6F7E86]">
                   <span>par {topic.username}</span>
                   <span>{new Date(topic.created_at).toLocaleDateString("fr-FR")}</span>
                 </div>
@@ -205,13 +203,13 @@ export default function ForumPage() {
 
         <button
           onClick={() => { setActiveCategory("💡 Suggestions"); setShowForm(true); setCategory("💡 Suggestions"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-          className="w-full bg-gradient-to-r from-amber-950 to-yellow-950 border border-amber-600 hover:border-amber-400 transition rounded-2xl p-5 mt-8 text-left flex items-center justify-between gap-4"
+          className="w-full bg-amber-50 border border-amber-400 hover:border-amber-600 transition rounded-2xl p-5 mt-8 text-left flex items-center justify-between gap-4"
         >
           <div>
-            <p className="text-amber-400 font-bold text-base sm:text-lg">💡 Une idée pour améliorer Marche&amp;Plouf ?</p>
-            <p className="text-gray-400 text-sm mt-1">Propose ta suggestion, on lit tout !</p>
+            <p className="text-amber-700 font-bold text-base sm:text-lg">💡 Une idée pour améliorer Marche&amp;Plouf ?</p>
+            <p className="text-[#6F7E86] text-sm mt-1">Propose ta suggestion, on lit tout !</p>
           </div>
-          <span className="text-amber-400 text-2xl shrink-0">→</span>
+          <span className="text-amber-700 text-2xl shrink-0">→</span>
         </button>
       </section>
     </main>

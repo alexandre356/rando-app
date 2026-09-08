@@ -36,7 +36,6 @@ export default function SummitPage() {
   const [summit, setSummit] = useState<Summit | null>(null);
   const [topos, setTopos] = useState<Topo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [outingCount, setOutingCount] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -51,12 +50,6 @@ export default function SummitPage() {
         .order("created_at");
       setTopos(toposData || []);
 
-      const { count } = await supabase
-        .from("outings")
-        .select("*", { count: "exact", head: true })
-        .eq("summit_id", id);
-      setOutingCount(count || 0);
-
       setLoading(false);
     }
     if (id) load();
@@ -64,10 +57,10 @@ export default function SummitPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black text-white">
+      <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
         <Navbar />
         <div className="flex items-center justify-center h-96">
-          <p className="text-gray-400 text-xl">Chargement...</p>
+          <p className="text-[#6F7E86] text-xl">Chargement...</p>
         </div>
       </main>
     );
@@ -75,111 +68,96 @@ export default function SummitPage() {
 
   if (!summit) {
     return (
-      <main className="min-h-screen bg-black text-white">
+      <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
         <Navbar />
         <div className="flex items-center justify-center h-96">
-          <p className="text-gray-400 text-xl">Sommet introuvable.</p>
+          <p className="text-[#6F7E86] text-xl">Sommet introuvable.</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
       <Navbar />
       <section className="p-10">
-        <a href="/map" className="text-gray-400 hover:text-green-400 transition mb-8 inline-block">
+        <a href="/map" className="text-[#6F7E86] hover:text-[#1C0F12] transition mb-8 inline-block">
           &larr; Retour à la carte
         </a>
 
-        <div className="flex items-start justify-between mb-2">
-          <div>
-            <h1 className="text-5xl font-bold mb-1">{summit.name}</h1>
-            <p className="text-green-400 text-lg">{summit.massif}</p>
-          </div>
-          <a href={`/submit-topo/${summit.id}`} className="bg-green-500 hover:bg-green-600 transition px-5 py-3 rounded-xl font-semibold text-sm shrink-0">
+        <div className="mb-2">
+          <h1 className="text-5xl font-extrabold mb-4">{summit.name}</h1>
+          <a href={`/submit-rando?summitId=${summit.id}`} className="block sm:inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-bold">
             + Ajouter un topo
           </a>
         </div>
 
-        <p className="text-teal-400 italic text-sm mb-8">&ldquo;Quand ça bip très fort, souris et fais semblant de comprendre.&rdquo;</p>
+        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          {summit.latitude && summit.longitude && (
+            <div>
+              <div className="flex items-baseline gap-3 mb-3">
+                <h2 className="text-xl font-bold">Localisation</h2>
+                <span className="text-[#6F7E86] font-semibold">{summit.massif}</span>
+              </div>
+              <div className="w-full h-96 lg:h-[32rem] rounded-2xl overflow-hidden border border-[#B9CFD0]">
+                <Map
+                  initialViewState={{ longitude: summit.longitude, latitude: summit.latitude, zoom: 11 }}
+                  mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+                  mapStyle="mapbox://styles/mapbox/outdoors-v12"
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  <Marker longitude={summit.longitude} latitude={summit.latitude} anchor="center">
+                    <div className="w-5 h-5 bg-[#1C0F12] rounded-full border-2 border-white shadow-lg" />
+                  </Marker>
+                </Map>
+              </div>
+            </div>
+          )}
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{topos.length}</p>
-            <p className="text-gray-400 text-sm mt-1">Topo(s)</p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{outingCount}</p>
-            <p className="text-gray-400 text-sm mt-1">Sortie(s) communauté</p>
-          </div>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-            <p className="text-3xl font-bold text-green-400">{new Date(summit.created_at).toLocaleDateString("fr-FR")}</p>
-            <p className="text-gray-400 text-sm mt-1">Ajouté le</p>
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Topos ({topos.length})</h2>
+            {topos.length === 0 ? (
+              <div className="bg-white border border-[#B9CFD0] rounded-2xl p-10 text-center">
+                <p className="text-[#6F7E86] mb-4">Aucun topo pour ce sommet.</p>
+                <a href={`/submit-rando?summitId=${summit.id}`} className="inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-bold">
+                  Ajouter le premier topo
+                </a>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {topos.map((topo) => (
+                  <a key={topo.id} href={`/topo/${topo.id}`} className="block bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition rounded-2xl p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-xl font-bold">{topo.name}</h3>
+                      {topo.approach_type && (
+                        <span className={`text-xs px-3 py-1 rounded-full font-bold ${topo.approach_type === "Alpinisme" ? "bg-[#6F7E86] text-white" : "bg-[#1C0F12] text-[#E4E4E4]"}`}>
+                          {topo.approach_type}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-sm text-[#6F7E86] mb-2">
+                      {topo.elevation_gain && <span>D+ : {topo.elevation_gain} m</span>}
+                      {topo.orientation && <span>Orient. : {topo.orientation}</span>}
+                      {topo.min_glide_ratio && <span>Finesse : {topo.min_glide_ratio}</span>}
+                    </div>
+                    {topo.start_name && <p className="text-[#6F7E86] text-xs">Départ : {topo.start_name}</p>}
+                    <p className="text-[#1C0F12] font-bold text-xs mt-2">Voir le topo &rarr;</p>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {summit.description && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-8">
+          <div className="bg-white border border-[#B9CFD0] rounded-2xl p-6 mb-8">
             <h2 className="text-xl font-bold mb-3">Description</h2>
-            <p className="text-gray-300 leading-relaxed">{summit.description}</p>
+            <p className="text-[#1C0F12]/80 leading-relaxed">{summit.description}</p>
           </div>
         )}
-
-        {summit.latitude && summit.longitude && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-3">Localisation</h2>
-            <div className="w-full h-72 rounded-2xl overflow-hidden border border-zinc-800">
-              <Map
-                initialViewState={{ longitude: summit.longitude, latitude: summit.latitude, zoom: 11 }}
-                mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-                mapStyle="mapbox://styles/mapbox/outdoors-v12"
-                style={{ width: "100%", height: "100%" }}
-              >
-                <Marker longitude={summit.longitude} latitude={summit.latitude} anchor="center">
-                  <div className="w-5 h-5 bg-green-500 rounded-full border-2 border-white shadow-lg" />
-                </Marker>
-              </Map>
-            </div>
-          </div>
-        )}
-
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Topos ({topos.length})</h2>
-          {topos.length === 0 ? (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-10 text-center">
-              <p className="text-gray-400 mb-4">Aucun topo pour ce sommet.</p>
-              <a href={`/submit-topo/${summit.id}`} className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
-                Ajouter le premier topo
-              </a>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {topos.map((topo) => (
-                <a key={topo.id} href={`/topo/${topo.id}`} className="block bg-zinc-900 border border-zinc-800 hover:border-green-500 transition rounded-2xl p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-xl font-bold">{topo.name}</h3>
-                    {topo.approach_type && (
-                      <span className={`text-xs px-3 py-1 rounded-full font-semibold ${topo.approach_type === "Alpinisme" ? "bg-orange-500 text-white" : "bg-green-500 text-white"}`}>
-                        {topo.approach_type}
-                      </span>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-sm text-gray-400 mb-2">
-                    {topo.elevation_gain && <span>D+ : {topo.elevation_gain} m</span>}
-                    {topo.orientation && <span>Orient. : {topo.orientation}</span>}
-                    {topo.min_glide_ratio && <span>Finesse : {topo.min_glide_ratio}</span>}
-                  </div>
-                  {topo.start_name && <p className="text-gray-500 text-xs">Départ : {topo.start_name}</p>}
-                  <p className="text-green-400 text-xs mt-2">Voir le topo &rarr;</p>
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
 
         <div className="flex justify-between items-center">
-          <a href={`/communaute?summit=${summit.id}`} className="bg-zinc-900 border border-zinc-800 hover:border-green-500 transition px-6 py-3 rounded-xl font-semibold text-sm">
+          <a href={`/communaute?summit=${summit.id}`} className="bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition px-6 py-3 rounded-xl font-bold text-sm">
             Voir les sorties communauté
           </a>
         </div>

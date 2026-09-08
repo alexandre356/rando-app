@@ -243,27 +243,27 @@ export default function CommunautePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black text-white">
+      <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
         <Navbar />
         <div className="flex items-center justify-center h-96">
-          <p className="text-gray-400 text-xl">Chargement...</p>
+          <p className="text-[#6F7E86] text-xl">Chargement...</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12]">
       <Navbar />
 
       <section className="p-5 sm:p-10">
         <PageHeader
           title="Communauté"
           tagline="Si tout le monde attend, attends. Si tout le monde décolle, attends aussi."
-          taglineClassName="text-purple-400"
+          taglineClassName="text-[#2563EB]"
           action={
             isLoggedIn ? (
-              <a href="/communaute/submit" className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
+              <a href="/communaute/submit" className="inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-semibold">
                 + Partager une sortie
               </a>
             ) : undefined
@@ -271,24 +271,24 @@ export default function CommunautePage() {
         />
 
         {!isLoggedIn && (
-          <p className="text-sm text-gray-400 -mt-4 mb-6">
-            <a href="/" className="text-green-400 hover:underline font-semibold">Connecte-toi</a> pour partager une sortie.
+          <p className="text-sm text-[#6F7E86] -mt-4 mb-6">
+            <a href="/" className="text-[#1C0F12] font-bold hover:underline font-semibold">Connecte-toi</a> pour partager une sortie.
           </p>
         )}
 
-        <p className="text-gray-400 mb-8">{outings.length} sortie(s) partagée(s)</p>
+        <p className="text-[#6F7E86] mb-8">{outings.length} sortie(s) partagée(s)</p>
 
         {/* Filtres */}
         <div className="flex flex-wrap gap-3 mb-6">
           <select value={filterMassif} onChange={(e) => { setFilterMassif(e.target.value); setFilterSummitId(""); setVisibleCount(10); }}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm">
+            className="bg-white border border-[#B9CFD0] rounded-xl px-4 py-2 text-sm">
             <option value="">Tous les massifs</option>
             {[...new Set(availableSummits.map((s) => s.massif).filter(Boolean))].map((m) => (
               <option key={m} value={m!}>{m}</option>
             ))}
           </select>
           <select value={filterSummitId} onChange={(e) => { setFilterSummitId(e.target.value); setVisibleCount(10); }}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm">
+            className="bg-white border border-[#B9CFD0] rounded-xl px-4 py-2 text-sm">
             <option value="">Tous les spots</option>
             {availableSummits.filter((s) => !filterMassif || s.massif === filterMassif).map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
@@ -296,19 +296,19 @@ export default function CommunautePage() {
           </select>
           {(filterMassif || filterSummitId) && (
             <button onClick={() => { setFilterMassif(""); setFilterSummitId(""); setVisibleCount(10); }}
-              className="text-xs text-red-400 hover:text-red-300 border border-zinc-700 rounded-xl px-3 py-2">
+              className="text-xs text-red-700 hover:text-red-800 border border-[#B9CFD0] rounded-xl px-3 py-2">
               ✕ Réinitialiser
             </button>
           )}
         </div>
 
         {outings.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-10 text-center">
-            <p className="text-gray-400 text-xl mb-4">Aucune sortie partagée pour l&apos;instant.</p>
+          <div className="bg-white border border-[#B9CFD0] rounded-2xl p-10 text-center">
+            <p className="text-[#6F7E86] text-xl mb-4">Aucune sortie partagée pour l&apos;instant.</p>
             {isLoggedIn ? (
-              <a href="/communaute/submit" className="bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">Soyez le premier !</a>
+              <a href="/communaute/submit" className="inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-semibold">Soyez le premier !</a>
             ) : (
-              <a href="/" className="text-green-400 hover:underline">Connectez-vous pour partager une sortie</a>
+              <a href="/" className="text-[#1C0F12] font-bold hover:underline">Connectez-vous pour partager une sortie</a>
             )}
           </div>
         ) : (
@@ -334,14 +334,14 @@ export default function CommunautePage() {
               const suspentesCount = suspentes[outing.id] || 0;
 
               return (
-                <div key={outing.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+                <div key={outing.id} className="bg-white border border-[#B9CFD0] rounded-2xl p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h2 className="text-2xl font-bold mb-1">{outing.title}</h2>
-                      <div className="flex flex-wrap gap-3 text-sm text-gray-400">
+                      <div className="flex flex-wrap gap-3 text-sm text-[#6F7E86]">
                         <span>{new Date(outing.date).toLocaleDateString("fr-FR")}</span>
-                        {outing.profiles?.username && <span>par <Link href={`/profile/${outing.user_id}`} className="text-white hover:text-green-400 transition">{outing.profiles.username}</Link></span>}
-                        {outing.summits?.name && <span className="text-green-400">{outing.summits.name}</span>}
+                        {outing.profiles?.username && <span>par <Link href={`/profile/${outing.user_id}`} className="text-[#1C0F12] hover:text-[#6F7E86] font-bold transition">{outing.profiles.username}</Link></span>}
+                        {outing.summits?.name && <span className="text-[#1C0F12] font-bold">{outing.summits.name}</span>}
                       </div>
                     </div>
 
@@ -352,8 +352,8 @@ export default function CommunautePage() {
                         title={isLoggedIn ? (hasSuspente ? "Retirer ma suspente" : "Donner une suspente") : "Connectez-vous pour réagir"}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition ${
                           hasSuspente
-                            ? "bg-green-500 border-green-500 text-white"
-                            : "bg-zinc-800 border-zinc-700 text-gray-300 hover:border-green-500"
+                            ? "bg-[#1C0F12] border-[#1C0F12] text-[#E4E4E4]"
+                            : "bg-[#F5F0E8] border-[#B9CFD0] text-[#1C0F12]/80 hover:border-[#1C0F12]"
                         } disabled:opacity-50`}
                       >
                         <span className="text-lg">🪂</span>
@@ -363,7 +363,7 @@ export default function CommunautePage() {
                       {suspentesCount > 0 && (
                         <button
                           onClick={() => setShowSuspentesFor(showSuspentesFor === outing.id ? null : outing.id)}
-                          className="text-xs text-gray-500 hover:text-gray-300 transition"
+                          className="text-xs text-[#6F7E86] hover:text-[#1C0F12]/80 transition"
                         >
                           {showSuspentesFor === outing.id ? "Masquer" : `Voir les ${suspentesCount} suspente${suspentesCount > 1 ? "s" : ""}`}
                         </button>
@@ -372,13 +372,13 @@ export default function CommunautePage() {
                       {showSuspentesFor === outing.id && (suspentesProfiles[outing.id] || []).length > 0 && (
                         <div className="flex flex-wrap gap-2 justify-end max-w-48">
                           {(suspentesProfiles[outing.id] || []).map((s) => (
-                            <div key={s.user_id} className="flex items-center gap-1 bg-zinc-800 rounded-full px-2 py-1">
+                            <div key={s.user_id} className="flex items-center gap-1 bg-[#F5F0E8] rounded-full px-2 py-1">
                               {s.profiles?.avatar_url ? (
                                 <img src={s.profiles.avatar_url} alt="" className="w-4 h-4 rounded-full object-cover" />
                               ) : (
                                 <span className="text-xs">🪂</span>
                               )}
-                              <span className="text-xs text-gray-300">{s.profiles?.username || "Pilote"}</span>
+                              <span className="text-xs text-[#1C0F12]/80">{s.profiles?.username || "Pilote"}</span>
                             </div>
                           ))}
                         </div>
@@ -387,18 +387,18 @@ export default function CommunautePage() {
                   </div>
 
                   {outing.conditions && (
-                    <div className="bg-black rounded-xl px-4 py-3 mb-4 text-sm">
-                      <span className="text-gray-400">Conditions : </span>
-                      <span className="text-gray-200">{outing.conditions}</span>
+                    <div className="bg-[#F5F0E8] rounded-xl px-4 py-3 mb-4 text-sm">
+                      <span className="text-[#6F7E86]">Conditions : </span>
+                      <span className="text-[#1C0F12]">{outing.conditions}</span>
                     </div>
                   )}
 
-                  {outing.description && <p className="text-gray-300 leading-relaxed mb-4">{outing.description}</p>}
+                  {outing.description && <p className="text-[#1C0F12]/80 leading-relaxed mb-4">{outing.description}</p>}
 
                   {photos.length > 0 && (
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       {photos.map((url, index) => (
-                        <img key={index} src={url} alt={`Photo ${index + 1}`} className="w-full h-40 object-cover rounded-xl border border-zinc-800" />
+                        <img key={index} src={url} alt={`Photo ${index + 1}`} className="w-full h-40 object-cover rounded-xl border border-[#B9CFD0]" />
                       ))}
                     </div>
                   )}
@@ -417,8 +417,8 @@ export default function CommunautePage() {
 
                   {ayvriEmbed && (
                     <div className="mb-4">
-                      <p className="text-gray-400 text-xs mb-2 font-semibold">Replay 3D — Ayvri</p>
-                      <div className="w-full h-64 rounded-2xl overflow-hidden border border-zinc-700">
+                      <p className="text-[#6F7E86] text-xs mb-2 font-semibold">Replay 3D — Ayvri</p>
+                      <div className="w-full h-64 rounded-2xl overflow-hidden border border-[#B9CFD0]">
                         <iframe src={ayvriEmbed} width="100%" height="100%" frameBorder="0" allowFullScreen />
                       </div>
                     </div>
@@ -426,9 +426,9 @@ export default function CommunautePage() {
 
                   {outing.xcontest_url && (
                     <a href={outing.xcontest_url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 bg-black border border-zinc-700 hover:border-green-500 transition rounded-xl px-4 py-3 text-sm mb-4">
-                      <span className="text-green-400 font-semibold">Voir le vol sur XContest</span>
-                      <span className="text-gray-500 text-xs">stats, trace, classement</span>
+                      className="flex items-center gap-3 bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition rounded-xl px-4 py-3 text-sm mb-4">
+                      <span className="text-[#1C0F12] font-bold font-semibold">Voir le vol sur XContest</span>
+                      <span className="text-[#6F7E86] text-xs">stats, trace, classement</span>
                     </a>
                   )}
 
@@ -441,20 +441,20 @@ export default function CommunautePage() {
                     </a>
                     <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${outing.title} - Marche&Plouf 🪂`)}&url=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
                       target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 transition rounded-xl px-3 py-2 text-xs font-semibold text-gray-200">
+                      className="flex items-center gap-2 bg-[#F5F0E8] hover:bg-[#B9CFD0]/30 transition rounded-xl px-3 py-2 text-xs font-semibold text-[#1C0F12]">
                       𝕏 Twitter
                     </a>
                     <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Lien copié !"); }}
-                      className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 transition rounded-xl px-3 py-2 text-xs font-semibold text-gray-200">
+                      className="flex items-center gap-2 bg-[#F5F0E8] hover:bg-[#B9CFD0]/30 transition rounded-xl px-3 py-2 text-xs font-semibold text-[#1C0F12]">
                       🔗 Copier le lien
                     </button>
                   </div>
 
                   {/* Commentaires */}
-                  <div className="border-t border-zinc-800 pt-4 mt-2">
+                  <div className="border-t border-[#B9CFD0] pt-4 mt-2">
                     <button
                       onClick={() => toggleComments(outing.id)}
-                      className="text-sm text-gray-400 hover:text-white transition flex items-center gap-2"
+                      className="text-sm text-[#6F7E86] hover:text-[#1C0F12] transition flex items-center gap-2"
                     >
                       💬 {comments[outing.id]?.length ?? ""} {showCommentsFor === outing.id ? "Masquer les commentaires" : "Commentaires"}
                     </button>
@@ -463,32 +463,32 @@ export default function CommunautePage() {
                       <div className="mt-4 space-y-3">
                         {(comments[outing.id] || []).map((comment) => (
                           <div key={comment.id} className="flex gap-3">
-                            <div className="shrink-0 w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center overflow-hidden">
+                            <div className="shrink-0 w-8 h-8 rounded-full bg-[#B9CFD0]/30 flex items-center justify-center overflow-hidden">
                               {comment.avatar_url
                                 ? <img src={comment.avatar_url} alt="" className="w-full h-full object-cover" />
                                 : <span className="text-xs">🪂</span>
                               }
                             </div>
-                            <div className="flex-1 bg-zinc-800 rounded-xl px-4 py-3">
+                            <div className="flex-1 bg-[#F5F0E8] rounded-xl px-4 py-3">
                               <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm font-semibold text-green-400">{comment.username}</span>
+                                <span className="text-sm font-semibold text-[#1C0F12] font-bold">{comment.username}</span>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-[#6F7E86]">
                                     {new Date(comment.created_at).toLocaleDateString("fr-FR")}
                                   </span>
                                   {comment.user_id === userId && (
-                                    <button onClick={() => deleteComment(outing.id, comment.id)} className="text-xs text-red-400 hover:text-red-300">✕</button>
+                                    <button onClick={() => deleteComment(outing.id, comment.id)} className="text-xs text-red-700 hover:text-red-800">✕</button>
                                   )}
                                 </div>
                               </div>
-                              <p className="text-gray-300 text-sm">{comment.content}</p>
+                              <p className="text-[#1C0F12]/80 text-sm">{comment.content}</p>
                             </div>
                           </div>
                         ))}
 
                         {isLoggedIn ? (
                           <div className="flex gap-3">
-                            <div className="shrink-0 w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
+                            <div className="shrink-0 w-8 h-8 rounded-full bg-[#B9CFD0]/30 flex items-center justify-center">
                               <span className="text-xs">🪂</span>
                             </div>
                             <div className="flex-1 flex gap-2">
@@ -498,20 +498,20 @@ export default function CommunautePage() {
                                 value={newComment[outing.id] || ""}
                                 onChange={(e) => setNewComment((prev) => ({ ...prev, [outing.id]: e.target.value }))}
                                 onKeyDown={(e) => e.key === "Enter" && submitComment(outing.id)}
-                                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-green-500"
+                                className="flex-1 bg-[#F5F0E8] border border-[#B9CFD0] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#1C0F12]"
                               />
                               <button
                                 onClick={() => submitComment(outing.id)}
                                 disabled={submittingComment === outing.id || !newComment[outing.id]?.trim()}
-                                className="bg-green-500 hover:bg-green-600 transition px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-50"
+                                className="bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-50"
                               >
                                 Envoyer
                               </button>
                             </div>
                           </div>
                         ) : (
-                          <p className="text-gray-500 text-xs">
-                            <a href="/login" className="text-green-400 hover:underline">Connectez-vous</a> pour commenter
+                          <p className="text-[#6F7E86] text-xs">
+                            <a href="/login" className="text-[#1C0F12] font-bold hover:underline">Connectez-vous</a> pour commenter
                           </p>
                         )}
                       </div>
@@ -524,10 +524,10 @@ export default function CommunautePage() {
                 {visible.length < filtered.length && (
                   <div className="text-center mt-8">
                     <button onClick={() => setVisibleCount((prev) => prev + 10)}
-                      className="bg-zinc-900 border border-zinc-700 hover:border-green-500 transition px-8 py-3 rounded-xl font-semibold text-sm">
+                      className="bg-white border border-[#B9CFD0] hover:border-[#1C0F12] transition px-8 py-3 rounded-xl font-semibold text-sm">
                       Charger {Math.min(10, filtered.length - visibleCount)} sortie(s) de plus
                     </button>
-                    <p className="text-gray-500 text-xs mt-2">{visible.length}/{filtered.length} sorties affichées</p>
+                    <p className="text-[#6F7E86] text-xs mt-2">{visible.length}/{filtered.length} sorties affichées</p>
                   </div>
                 )}
               </>

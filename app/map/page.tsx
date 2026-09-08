@@ -14,6 +14,7 @@ type Summit = {
   longitude: number | null;
   description: string | null;
   outing_count?: number;
+  topo_count?: number;
   last_outing_date?: string | null;
   max_elevation_gain?: number | null;
   orientations?: string[];
@@ -32,12 +33,14 @@ function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): 
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Couleurs fonctionnelles (légende d'activité récente) — conservées telles quelles,
+// indépendantes de la palette de marque, comme le rouge pour les actions destructrices.
 function getMarkerColor(summit: Summit): string {
-  if (!summit.last_outing_date) return "#6b7280"; // gris - aucune sortie
+  if (!summit.last_outing_date) return "#6b7280";
   const daysAgo = Math.floor((Date.now() - new Date(summit.last_outing_date).getTime()) / (1000 * 60 * 60 * 24));
-  if (daysAgo <= 7) return "#f97316"; // orange - très actif
-  if (daysAgo <= 30) return "#22c55e"; // vert - actif
-  return "#3b82f6"; // bleu - ancien
+  if (daysAgo <= 7) return "#f97316";
+  if (daysAgo <= 30) return "#22c55e";
+  return "#3b82f6";
 }
 
 export default function MapPage() {
@@ -62,7 +65,6 @@ export default function MapPage() {
   const [filterRecent, setFilterRecent] = useState(false);
   const [clusterZoom, setClusterZoom] = useState(viewState.zoom);
 
-  // Clustering logic
   function getClusters(summits: Summit[], zoom: number) {
     const clusterRadius = zoom < 8 ? 2.5 : zoom < 10 ? 1.2 : zoom < 12 ? 0.5 : 0;
     if (clusterRadius === 0) return summits.map((s) => ({ ...s, cluster: false, count: 1, summitsInCluster: [s] }));
@@ -130,8 +132,10 @@ export default function MapPage() {
 
       const elevationBySummit: Record<string, number> = {};
       const orientationsBySummit: Record<string, Set<string>> = {};
+      const topoCountBySummit: Record<string, number> = {};
       for (const t of toposData || []) {
         if (!t.summit_id) continue;
+        topoCountBySummit[t.summit_id] = (topoCountBySummit[t.summit_id] || 0) + 1;
         if (t.elevation_gain && (!elevationBySummit[t.summit_id] || t.elevation_gain > elevationBySummit[t.summit_id])) {
           elevationBySummit[t.summit_id] = t.elevation_gain;
         }
@@ -144,6 +148,7 @@ export default function MapPage() {
       setSummits(summitsList.map((s) => ({
         ...s,
         outing_count: outingsBySummit[s.id]?.count || 0,
+        topo_count: topoCountBySummit[s.id] || 0,
         last_outing_date: outingsBySummit[s.id]?.lastDate || null,
         max_elevation_gain: elevationBySummit[s.id] || null,
         orientations: orientationsBySummit[s.id] ? Array.from(orientationsBySummit[s.id]) : [],
@@ -216,32 +221,37 @@ export default function MapPage() {
   });
 
   return (
-    <main className="min-h-screen bg-black text-white overflow-x-hidden">
+    <main className="min-h-screen bg-[#E4E4E4] text-[#1C0F12] overflow-x-hidden">
       <Navbar />
 
       <div className="p-5 sm:p-10">
         <div className="mb-2">
-          <h1 className="text-3xl sm:text-5xl font-bold mb-2">Carte Hike &amp; Fly</h1>
-          <p className="text-orange-400 italic text-sm mb-4">&ldquo;Si le topo dit facile, prévois compliqué.&rdquo;</p>
+          <h1 className="text-3xl sm:text-5xl font-extrabold mb-2">Carte Hike &amp; Fly</h1>
+          <p
+            className="text-2xl mb-4"
+            style={{ fontFamily: "'Brush Script MT', 'Segoe Script', cursive", color: "#B5179E" }}
+          >
+            &ldquo;Si le topo dit facile, prévois compliqué.&rdquo;
+          </p>
 
           {isLoggedIn === true && (
-            <a href="/submit-rando" className="block sm:inline-block text-center bg-green-500 hover:bg-green-600 transition px-6 py-3 rounded-xl font-semibold">
+            <a href="/submit-rando" className="block sm:inline-block sm:w-64 text-center bg-[#1C0F12] hover:bg-[#BEBCC8] hover:text-[#1C0F12] text-[#E4E4E4] transition px-6 py-3 rounded-xl font-bold">
               + Ajouter une randonnée
             </a>
           )}
 
           {isLoggedIn === false && (
-            <p className="text-sm text-gray-400">
-              <a href="/" className="text-green-400 hover:underline font-semibold">Connecte-toi</a> pour ajouter une randonnée à la carte.
+            <p className="text-sm text-[#6F7E86]">
+              <a href="/" className="text-[#1C0F12] hover:underline font-bold">Connecte-toi</a> pour ajouter une randonnée à la carte.
             </p>
           )}
         </div>
 
-        <p className="text-gray-400 mb-6">{filteredSummits.length} sommet(s)</p>
+        <p className="text-[#6F7E86] mb-6">{filteredSummits.length} sommet(s)</p>
 
         <div className="grid md:grid-cols-3 gap-4 mb-4">
-          <input type="text" placeholder="Recherche par nom" value={search} onChange={(e) => setSearch(e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm" />
-          <select value={massif} onChange={(e) => setMassif(e.target.value)} className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm">
+          <input type="text" placeholder="Recherche par nom" value={search} onChange={(e) => setSearch(e.target.value)} className="bg-white border border-[#B9CFD0] rounded-xl px-4 py-3 text-sm text-[#1C0F12] placeholder-[#6F7E86] focus:outline-none focus:border-[#1C0F12]" />
+          <select value={massif} onChange={(e) => setMassif(e.target.value)} className="bg-white border border-[#B9CFD0] rounded-xl px-4 py-3 text-sm text-[#1C0F12] focus:outline-none focus:border-[#1C0F12]">
             <option value="">Tous massifs</option>
             <option value="Bornes - Aravis">Bornes - Aravis</option>
             <option value="Chablais - Faucigny">Chablais - Faucigny</option>
@@ -261,15 +271,15 @@ export default function MapPage() {
             <option value="Corse">Corse</option>
           </select>
           <div className="flex items-center gap-3 relative">
-            <button onClick={handleLocate} disabled={locating} className={`px-4 py-3 rounded-xl font-semibold text-sm border transition shrink-0 ${useRadius && positionLabel === "Ma position" ? "bg-green-500 border-green-500 text-white" : "bg-zinc-900 border-zinc-700 text-gray-300 hover:border-green-500"} disabled:opacity-50`}>
+            <button onClick={handleLocate} disabled={locating} className={`px-4 py-3 rounded-xl font-bold text-sm border transition shrink-0 ${useRadius && positionLabel === "Ma position" ? "bg-[#1C0F12] border-[#1C0F12] text-[#E4E4E4]" : "bg-white border-[#B9CFD0] text-[#6F7E86] hover:border-[#1C0F12]"} disabled:opacity-50`}>
               {locating ? "..." : "Ma position"}
             </button>
             <div className="relative flex-1">
-              <input type="text" placeholder="Recherche par ville..." value={citySearch} onChange={(e) => handleCitySearch(e.target.value)} onFocus={() => setShowSuggestions(true)} className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-green-500" />
+              <input type="text" placeholder="Recherche par ville..." value={citySearch} onChange={(e) => handleCitySearch(e.target.value)} onFocus={() => setShowSuggestions(true)} className="w-full bg-white border border-[#B9CFD0] rounded-xl px-4 py-3 text-sm text-[#1C0F12] placeholder-[#6F7E86] focus:outline-none focus:border-[#1C0F12]" />
               {showSuggestions && citySuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden z-50">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#B9CFD0] rounded-xl overflow-hidden z-50">
                   {citySuggestions.map((result, index) => (
-                    <button key={index} onClick={() => handleSelectCity(result)} className="w-full text-left px-4 py-3 hover:bg-zinc-700 text-sm text-gray-200 border-b border-zinc-700 last:border-0">
+                    <button key={index} onClick={() => handleSelectCity(result)} className="w-full text-left px-4 py-3 hover:bg-[#B9CFD0]/20 text-sm text-[#1C0F12] border-b border-[#B9CFD0]/50 last:border-0">
                       {result.place_name}
                     </button>
                   ))}
@@ -281,27 +291,27 @@ export default function MapPage() {
 
         {useRadius && (
           <div className="flex flex-wrap items-center gap-4 mb-4">
-            <span className="text-gray-400 text-sm">Rayon :</span>
-            <input type="range" min={5} max={200} step={5} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="w-48 accent-green-500" />
-            <span className="text-green-400 font-semibold text-sm w-16">{radius} km</span>
-            <button onClick={() => { setUseRadius(false); setUserPosition(null); setPositionLabel(""); setCitySearch(""); }} className="text-xs text-red-400 hover:text-red-300">Désactiver</button>
+            <span className="text-[#6F7E86] text-sm">Rayon :</span>
+            <input type="range" min={5} max={200} step={5} value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="w-48 accent-[#1C0F12]" />
+            <span className="text-[#1C0F12] font-bold text-sm w-16">{radius} km</span>
+            <button onClick={() => { setUseRadius(false); setUserPosition(null); setPositionLabel(""); setCitySearch(""); }} className="text-xs text-red-700 hover:text-red-800">Désactiver</button>
           </div>
         )}
 
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-gray-400 text-sm shrink-0">D+ max :</span>
-            <input type="range" min={0} max={3000} step={100} value={maxElevation === 5000 ? 3000 : maxElevation} onChange={(e) => setMaxElevation(Number(e.target.value) === 3000 ? 5000 : Number(e.target.value))} className="w-36 accent-green-500" />
-            <span className="text-green-400 font-semibold text-sm w-20">{maxElevation >= 5000 ? "Tous" : `≤ ${maxElevation} m`}</span>
+            <span className="text-[#6F7E86] text-sm shrink-0">D+ max :</span>
+            <input type="range" min={0} max={3000} step={100} value={maxElevation === 5000 ? 3000 : maxElevation} onChange={(e) => setMaxElevation(Number(e.target.value) === 3000 ? 5000 : Number(e.target.value))} className="w-36 accent-[#1C0F12]" />
+            <span className="text-[#1C0F12] font-bold text-sm w-20">{maxElevation >= 5000 ? "Tous" : `≤ ${maxElevation} m`}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-gray-400 text-sm shrink-0">D+ min :</span>
-            <input type="range" min={0} max={2000} step={100} value={minElevation} onChange={(e) => setMinElevation(Number(e.target.value))} className="w-36 accent-green-500" />
-            <span className="text-green-400 font-semibold text-sm w-20">{minElevation === 0 ? "Tous" : `≥ ${minElevation} m`}</span>
+            <span className="text-[#6F7E86] text-sm shrink-0">D+ min :</span>
+            <input type="range" min={0} max={2000} step={100} value={minElevation} onChange={(e) => setMinElevation(Number(e.target.value))} className="w-36 accent-[#1C0F12]" />
+            <span className="text-[#1C0F12] font-bold text-sm w-20">{minElevation === 0 ? "Tous" : `≥ ${minElevation} m`}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-gray-400 text-sm shrink-0">Orientation :</span>
+            <span className="text-[#6F7E86] text-sm shrink-0">Orientation :</span>
             <svg width="80" height="80" viewBox="0 0 200 200" className="shrink-0">
               {[
                 { code: "N", angle: 0 }, { code: "NE", angle: 45 },
@@ -321,30 +331,30 @@ export default function MapPage() {
                 const isSelected = filterOrientations.includes(dir.code);
                 return (
                   <g key={dir.code} onClick={() => setFilterOrientations((prev) => prev.includes(dir.code) ? prev.filter((o) => o !== dir.code) : [...prev, dir.code])} className="cursor-pointer">
-                    <path d={path} fill={isSelected ? "#22c55e" : "#27272a"} stroke="#000" strokeWidth={1.5} opacity={isSelected ? 1 : 0.7} className="hover:opacity-90 transition-opacity" />
+                    <path d={path} fill={isSelected ? "#1C0F12" : "#B9CFD0"} stroke="#E4E4E4" strokeWidth={1.5} opacity={isSelected ? 1 : 0.6} className="hover:opacity-90 transition-opacity" />
                   </g>
                 );
               })}
-              <circle cx={100} cy={100} r={26} fill="#18181b" stroke="#3f3f46" strokeWidth={1} />
-              <text x={100} y={100} textAnchor="middle" dominantBaseline="central" fontSize="20" fill="#6b7280">+</text>
+              <circle cx={100} cy={100} r={26} fill="#E4E4E4" stroke="#B9CFD0" strokeWidth={1} />
+              <text x={100} y={100} textAnchor="middle" dominantBaseline="central" fontSize="20" fill="#6F7E86">+</text>
             </svg>
             {filterOrientations.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {filterOrientations.map((o) => (
-                  <span key={o} className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-semibold">{o}</span>
+                  <span key={o} className="bg-[#1C0F12] text-[#E4E4E4] text-xs px-2 py-1 rounded-full font-bold">{o}</span>
                 ))}
-                <button onClick={() => setFilterOrientations([])} className="text-xs text-red-400 hover:text-red-300 ml-1">✕</button>
+                <button onClick={() => setFilterOrientations([])} className="text-xs text-red-700 hover:text-red-800 ml-1">✕</button>
               </div>
             )}
           </div>
 
-          <button onClick={() => setFilterRecent(!filterRecent)} className={`text-xs font-semibold px-3 py-2 rounded-xl border transition ${filterRecent ? "bg-orange-500 border-orange-500 text-white" : "bg-zinc-900 border-zinc-700 text-gray-300 hover:border-orange-500"}`}>
+          <button onClick={() => setFilterRecent(!filterRecent)} className={`text-xs font-bold px-3 py-2 rounded-xl border transition ${filterRecent ? "bg-[#1C0F12] border-[#1C0F12] text-[#E4E4E4]" : "bg-white border-[#B9CFD0] text-[#6F7E86] hover:border-[#1C0F12]"}`}>
             🔥 Actifs ce mois
           </button>
         </div>
 
-        {/* Légende — sur sa propre ligne, wrap complet sur mobile */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-400 mb-6">
+        {/* Légende — couleurs fonctionnelles conservées (indiquent la récence, pas la marque) */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-[#6F7E86] mb-6">
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> &lt; 7j</span>
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500 inline-block"></span> &lt; 30j</span>
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Ancien</span>
@@ -352,10 +362,11 @@ export default function MapPage() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-380px)] lg:min-h-[500px]">
-          <div className="flex-1 rounded-2xl overflow-hidden border border-zinc-800 h-[400px] lg:h-auto">
+          <div className="flex-1 rounded-2xl overflow-hidden border border-[#B9CFD0] h-[400px] lg:h-auto">
             <Map
               {...viewState}
               onMove={(e) => setViewState(e.viewState)}
+              onClick={() => setSelectedSummit(null)}
               mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
               mapStyle="mapbox://styles/mapbox/outdoors-v12"
               style={{ width: "100%", height: "100%" }}
@@ -363,20 +374,19 @@ export default function MapPage() {
             >
               {userPosition && (
                 <Marker longitude={userPosition.lng} latitude={userPosition.lat} anchor="center">
-                  <div className="w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow-lg" />
+                  <div className="w-4 h-4 bg-[#1C0F12] rounded-full border-2 border-white shadow-lg" />
                 </Marker>
               )}
 
               {getClusters(filteredSummits, viewState.zoom).map((cluster, i) => {
                 if ('id' in cluster) {
-                  // Single summit
                   const summit = cluster as Summit;
                   const color = getMarkerColor(summit);
                   const count = summit.outing_count || 0;
                   return (
                     <Marker key={summit.id} longitude={summit.longitude!} latitude={summit.latitude!} anchor="center">
                       <button
-                        onClick={() => { setSelectedSummit(summit); setViewState({ longitude: summit.longitude!, latitude: summit.latitude!, zoom: 13 }); }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedSummit(summit); setViewState({ longitude: summit.longitude!, latitude: summit.latitude!, zoom: 13 }); }}
                         className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white shadow-lg font-bold text-xs text-white transition hover:scale-110"
                         style={{ backgroundColor: color }}
                       >
@@ -385,13 +395,12 @@ export default function MapPage() {
                     </Marker>
                   );
                 } else {
-                  // Cluster
                   const c = cluster as { lat: number; lng: number; count: number; color: string; summitsInCluster: Summit[] };
                   const size = c.count === 1 ? 32 : c.count < 5 ? 40 : c.count < 15 ? 48 : 56;
                   return (
                     <Marker key={`cluster-${i}`} longitude={c.lng} latitude={c.lat} anchor="center">
                       <button
-                        onClick={() => setViewState({ longitude: c.lng, latitude: c.lat, zoom: Math.min(viewState.zoom + 2, 14) })}
+                        onClick={(e) => { e.stopPropagation(); setViewState({ longitude: c.lng, latitude: c.lat, zoom: Math.min(viewState.zoom + 2, 14) }); }}
                         className="flex items-center justify-center rounded-full border-2 border-white shadow-xl font-bold text-white transition hover:scale-110"
                         style={{ backgroundColor: c.color, width: size, height: size, fontSize: size > 40 ? 14 : 11 }}
                       >
@@ -404,11 +413,11 @@ export default function MapPage() {
 
               {selectedSummit && selectedSummit.latitude && selectedSummit.longitude && (
                 <Popup longitude={selectedSummit.longitude} latitude={selectedSummit.latitude} onClose={() => setSelectedSummit(null)} closeOnClick={false}>
-                  <div className="text-black">
+                  <div className="text-[#1C0F12]" onClick={(e) => e.stopPropagation()}>
                     <h2 className="font-bold text-base mb-1">{selectedSummit.name}</h2>
-                    <p className="text-sm text-gray-600 mb-1">{selectedSummit.massif}</p>
-                    <p className="text-xs text-gray-500 mb-2">{selectedSummit.outing_count || 0} sortie(s)</p>
-                    <a href={`/summit/${selectedSummit.id}`} className="text-green-600 font-semibold text-sm hover:underline block">
+                    <p className="text-sm text-[#6F7E86] mb-2">{selectedSummit.massif}</p>
+                    <p className="text-xs text-[#6F7E86] mb-2">{selectedSummit.topo_count || 0} topo(s)</p>
+                    <a href={`/summit/${selectedSummit.id}`} className="text-[#1C0F12] font-bold text-sm hover:underline block">
                       Voir les topos
                     </a>
                   </div>
@@ -419,8 +428,8 @@ export default function MapPage() {
 
           <div className="w-full lg:w-80 overflow-y-auto space-y-3 pr-1 max-h-96 lg:max-h-none">
             {filteredSummits.length === 0 ? (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center">
-                <p className="text-gray-400">Aucun sommet trouvé</p>
+              <div className="bg-white border border-[#B9CFD0] rounded-2xl p-6 text-center">
+                <p className="text-[#6F7E86]">Aucun sommet trouvé</p>
               </div>
             ) : (
               filteredSummits.map((summit) => {
@@ -428,21 +437,21 @@ export default function MapPage() {
                 return (
                   <div
                     key={summit.id}
-                    className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 hover:border-green-500 transition cursor-pointer"
+                    className="bg-white border border-[#B9CFD0] rounded-2xl p-4 hover:border-[#1C0F12] transition cursor-pointer"
                     onClick={() => { setSelectedSummit(summit); setViewState({ longitude: summit.longitude!, latitude: summit.latitude!, zoom: 11 }); }}
                   >
                     <div className="flex items-center gap-3 mb-1">
                       <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
                       <h2 className="text-lg font-bold">{summit.name}</h2>
                     </div>
-                    <p className="text-gray-400 text-sm">{summit.massif || "Non renseigné"}</p>
-                    <p className="text-gray-500 text-xs mt-1">{summit.outing_count || 0} sortie(s){summit.max_elevation_gain ? ` · D+ ${summit.max_elevation_gain} m` : ""}</p>
+                    <p className="text-[#6F7E86] text-sm">{summit.massif || "Non renseigné"}</p>
+                    <p className="text-[#6F7E86] text-xs mt-1">{summit.topo_count || 0} topo(s){summit.max_elevation_gain ? ` · D+ ${summit.max_elevation_gain} m` : ""}</p>
                     {userPosition && summit.latitude && summit.longitude && (
-                      <p className="text-green-400 text-xs mt-1">
+                      <p className="text-[#1C0F12] font-bold text-xs mt-1">
                         {Math.round(getDistanceKm(userPosition.lat, userPosition.lng, summit.latitude, summit.longitude))} km {positionLabel ? `de ${positionLabel}` : "de vous"}
                       </p>
                     )}
-                    <a href={`/summit/${summit.id}`} onClick={(e) => e.stopPropagation()} className="text-green-400 hover:text-green-300 text-xs mt-2 inline-block">
+                    <a href={`/summit/${summit.id}`} onClick={(e) => e.stopPropagation()} className="text-[#1C0F12] hover:underline text-xs mt-2 inline-block font-bold">
                       Voir les topos
                     </a>
                   </div>
